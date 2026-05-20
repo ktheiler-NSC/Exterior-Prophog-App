@@ -308,19 +308,10 @@
 
             <div class="filter-section">
                 <div class="filter-title" onclick="toggleFilter(this)">
-                    <span class="filter-label"><span class="filter-icon">🏠</span> TX Resident</span>
+                    <span class="filter-label"><span class="filter-icon">🏠</span> Resident State</span>
                     <span class="filter-toggle">▼</span>
                 </div>
-                <div class="filter-options open" id="filter-resident">
-                    <div class="filter-option">
-                        <input type="checkbox" id="resident-yes" value="Yes" onchange="filter()">
-                        <label for="resident-yes">Yes</label>
-                    </div>
-                    <div class="filter-option">
-                        <input type="checkbox" id="resident-no" value="No" onchange="filter()">
-                        <label for="resident-no">No</label>
-                    </div>
-                </div>
+                <div class="filter-options" id="filter-resident"></div>
             </div>
 
             <div class="filter-section">
@@ -750,7 +741,7 @@ function updateTeamBar() {
 }
 
 function buildFilterOptions(fieldId, fieldName) {
-    if (fieldId === 'resident' || fieldId === 'license-count') return;
+    if (fieldId === 'license-count') return;
     const values = [...new Set(agents.map(a => a[fieldName]).filter(Boolean))].sort();
     const container = document.getElementById(`filter-${fieldId}`);
     if (!container) return;
@@ -769,6 +760,7 @@ function build() {
     buildFilterOptions('county', 'county');
     buildFilterOptions('city', 'city');
     buildFilterOptions('gender', 'gender');
+    buildFilterOptions('resident', 'is_residence');
     buildFilterOptions('license-state', 'license_state');
 }
 
@@ -785,13 +777,8 @@ function filter() {
     const county = getSelectedFilters('county', 'county');
     const city = getSelectedFilters('city', 'city');
     const gender = getSelectedFilters('gender', 'gender');
+    const resident = getSelectedFilters('resident', 'is_residence');
     const licenseState = getSelectedFilters('license-state', 'license_state');
-
-    const residentYes = document.getElementById('resident-yes')?.checked;
-    const residentNo = document.getElementById('resident-no')?.checked;
-    const resident = (residentYes || residentNo) ? [] : null;
-    if (residentYes) resident.push('Yes');
-    if (residentNo) resident.push('No');
 
     filtered = agents.filter(a => {
         const npn = a.npn_no || a.npn;
