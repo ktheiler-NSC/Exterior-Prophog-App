@@ -46,3 +46,4 @@ Make sure your Google Sheet is shared with "Anyone with the link can view" permi
 ## Data Persistence
 
 All tracker data (notes, assignments, appointments) is automatically saved to the server and persists across sessions.
+
