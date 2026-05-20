@@ -83,6 +83,7 @@
         .drawer-header { padding: 20px; background: #16181c; border-bottom: 1px solid #2a2d35; display: flex; align-items: flex-start; justify-content: space-between; }
         .drawer-header-content { flex: 1; }
         .drawer-header h2 { font-size: 20px; font-weight: 700; color: #e8eaf0; margin-bottom: 8px; }
+        #location-info { font-size: 15px; color: #a0aec0; font-weight: 500; }
         .drawer-close { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 24px; padding: 0; }
         .drawer-close:hover { color: #e8eaf0; }
         .drawer-body { flex: 1; padding: 20px; overflow-y: auto; }
@@ -508,6 +509,17 @@ function getOrGenerateColor() {
     return generated;
 }
 
+function formatDate(dateStr) {
+    if (!dateStr) return 'Not provided';
+    try {
+        const date = new Date(dateStr);
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        return months[date.getMonth()] + ' ' + date.getDate();
+    } catch (e) {
+        return dateStr;
+    }
+}
+
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -880,7 +892,9 @@ function open_drawer(npn) {
     current = agents.find(a => (a.npn_no || a.npn) === npn);
     if (!current) return;
 
-    const fullName = current.full_name || (current.first_name && current.last_name ? current.first_name + ' ' + current.last_name : 'Agent');
+    const firstName = current.first_name || '';
+    const lastName = current.last_name || '';
+    const fullName = firstName && lastName ? firstName + ' ' + lastName : (current.full_name || 'Agent');
     const emailValue = current.email || 'Not provided';
     const phoneNumber = current.phone || '';
     const useGoogleVoice = localStorage.getItem(`gv-enabled-${email}`) === 'true';
@@ -910,7 +924,7 @@ function open_drawer(npn) {
     document.getElementById('license').textContent = current.license_type || 'Not provided';
     document.getElementById('npn').textContent = npn;
     document.getElementById('license-num').textContent = current.license_number || current.lic_number || 'Not provided';
-    document.getElementById('lic-date').textContent = current.license_effective_date || 'Not provided';
+    document.getElementById('lic-date').textContent = formatDate(current.license_effective_date);
     document.getElementById('state').textContent = current.state || current.license_state || 'Not provided';
     document.getElementById('experience').textContent = current.active_lic_time || 'Not provided';
     
