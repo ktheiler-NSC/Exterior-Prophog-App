@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Recurse \"G:\\\\My Drive\\\\Dell\\\\Downloads\\\\KT Ins\\\\PropHog\\\\EX PropHog App\\\\extracted\" | ForEach-Object { $_.FullName })",
+      "PowerShell(Get-Command node -ErrorAction SilentlyContinue | Select-Object Source; Get-Command npm -ErrorAction SilentlyContinue | Select-Object Source; \\(Get-ChildItem \"C:\\\\Program Files\\\\nodejs\" -ErrorAction SilentlyContinue\\) | Select-Object Name -First 5; \\(Get-ChildItem \"$env:APPDATA\\\\npm\" -ErrorAction SilentlyContinue\\) | Select-Object Name -First 5)",
+      "mcp__Claude_Preview__preview_start",
+      "PowerShell(python --version 2>&1)"
+    ]
+  }
+}

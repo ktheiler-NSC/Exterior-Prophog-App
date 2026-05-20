@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exterior PropHog</title>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #0e0f11; color: #e8eaf0; height: 100vh; overflow: hidden; }
+        
+        .login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: linear-gradient(135deg, #16181c 0%, #0e0f11 100%); }
+        .login-box { background: #16181c; border: 1px solid #2a2d35; border-radius: 12px; padding: 40px; width: 100%; max-width: 500px; }
+        .login-header { text-align: center; margin-bottom: 30px; }
+        .login-header h1 { font-size: 32px; font-weight: 700; color: #4ade80; margin-bottom: 10px; }
+        .login-header p { color: #6b7280; font-size: 13px; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 11px; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; font-weight: 600; }
+        .form-input { width: 100%; padding: 12px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 6px; color: #e8eaf0; font-size: 14px; }
+        .form-input:focus { border-color: #4ade80; outline: none; }
+        .color-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; margin-top: 10px; }
+        .color-btn { width: 100%; aspect-ratio: 1; border: 3px solid #2a2d35; border-radius: 8px; cursor: pointer; transition: all 0.2s; position: relative; }
+        .color-btn:hover { transform: scale(1.1); }
+        .color-btn.selected { border: 5px solid #ffffff; box-shadow: 0 0 20px rgba(255,255,255,.8), inset 0 0 0 2px rgba(255,255,255,.6); }
+        .color-btn.selected::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; font-weight: bold; text-shadow: 0 0 4px rgba(0,0,0,.8); }
+        .form-btn { width: 100%; padding: 12px; background: #4ade80; color: #0e0f11; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px; }
+        .form-btn:hover { opacity: 0.9; }
+        .error-msg { color: #f87171; font-size: 12px; margin-top: 10px; display: none; }
+        
+        .app-screen { display: none; height: 100%; flex-direction: column; gap: 15px; padding: 15px; }
+        .app-screen.active { display: flex; }
+        
+        header { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .logo { color: #4ade80; font-weight: 600; font-size: 16px; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-badge { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 11px; }
+        .logout-btn { padding: 6px 12px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; cursor: pointer; font-size: 11px; border-radius: 6px; }
+        
+        .team-bar { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 10px 15px; display: flex; gap: 15px; align-items: center; overflow-x: auto; }
+        .team-member { display: flex; align-items: center; gap: 6px; font-size: 11px; padding: 6px 10px; background: #1e2026; border-radius: 6px; }
+        .team-badge { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 9px; }
+        
+        .main { display: grid; grid-template-columns: 200px 1fr; gap: 15px; flex: 1; overflow: hidden; }
+        
+        aside { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 12px; overflow-y: auto; }
+        .filter-group { margin-bottom: 12px; }
+        .filter-label { font-size: 9px; text-transform: uppercase; color: #6b7280; font-weight: 600; margin-bottom: 6px; }
+        .filter-dropdown { width: 100%; padding: 8px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 11px; }
+        .search-box { width: 100%; padding: 8px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 11px; margin-bottom: 10px; }
+        .clear-btn { width: 100%; padding: 6px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; border-radius: 4px; cursor: pointer; font-size: 10px; }
+        
+        .table-container { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+        .table-wrapper { flex: 1; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        thead { background: #1e2026; position: sticky; top: 0; }
+        th { padding: 8px; text-align: left; font-size: 9px; text-transform: uppercase; color: #6b7280; font-weight: 600; border-bottom: 1px solid #2a2d35; }
+        td { padding: 8px; border-bottom: 1px solid #2a2d35; }
+        tbody tr:hover { background: #1e2026; cursor: pointer; }
+        .badge { display: inline-block; padding: 2px 6px; background: #1e2026; border-radius: 3px; font-size: 9px; color: #6b7280; }
+        
+        .drawer { position: fixed; top: 0; right: -450px; width: 450px; height: 100vh; background: #16181c; border-left: 1px solid #2a2d35; transition: right 0.3s; z-index: 100; overflow-y: auto; display: flex; flex-direction: column; }
+        .drawer.open { right: 0; }
+        .drawer-header { padding: 15px 20px; border-bottom: 1px solid #2a2d35; display: flex; align-items: center; justify-content: space-between; }
+        .drawer-header h2 { font-size: 15px; }
+        .drawer-close { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 20px; padding: 0; }
+        .drawer-close:hover { color: #e8eaf0; }
+        .drawer-body { flex: 1; padding: 20px; overflow-y: auto; }
+        .drawer-section { margin-bottom: 20px; }
+        .drawer-section-title { font-size: 10px; text-transform: uppercase; color: #4ade80; font-weight: 600; margin-bottom: 8px; }
+        .drawer-info { font-size: 11px; color: #6b7280; line-height: 1.6; }
+        .drawer-info p { margin-bottom: 5px; }
+        .drawer-input, .drawer-select, .drawer-textarea { width: 100%; padding: 8px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 11px; font-family: inherit; margin-bottom: 6px; }
+        .drawer-textarea { min-height: 60px; resize: vertical; }
+        .drawer-btn { width: 100%; padding: 8px; background: #4ade80; color: #0e0f11; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; margin-bottom: 6px; }
+        .drawer-btn:hover { opacity: 0.9; }
+        .note-item { background: #1e2026; padding: 8px; border-radius: 4px; margin-bottom: 6px; font-size: 10px; }
+        .note-user { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
+        .note-badge { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 8px; }
+        .note-time { color: #6b7280; font-size: 9px; }
+        .appt-confirmed { background: #16a34a; color: white; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px; text-align: center; }
+
+        .stats-panel { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 12px 15px; display: flex; gap: 20px; font-size: 11px; flex-wrap: wrap; }
+        .stat-item { display: flex; flex-direction: column; gap: 2px; }
+        .stat-label { color: #6b7280; font-size: 9px; text-transform: uppercase; font-weight: 600; }
+        .stat-value { color: #4ade80; font-weight: 700; font-size: 16px; }
+
+        .filter-label-with-icon { display: flex; align-items: center; gap: 6px; }
+        .filter-icon { font-size: 12px; }
+
+        .phone-link { color: #38bdf8; cursor: pointer; text-decoration: none; }
+        .phone-link:hover { text-decoration: underline; }
+
+        .status-active { background: #16a34a; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 600; }
+        .status-inactive { background: #6b7280; color: white; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 600; }
+
+        .contacted-yes { color: #38bdf8; font-weight: 600; }
+        .contacted-no { color: #9ca3af; font-weight: 600; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 200; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 25px; width: 90%; max-width: 400px; }
+        .modal-header { font-size: 18px; font-weight: 600; color: #4ade80; margin-bottom: 15px; }
+        .modal-close { float: right; background: none; border: none; color: #6b7280; cursor: pointer; font-size: 24px; }
+        .modal-close:hover { color: #e8eaf0; }
+        .modal-field { margin-bottom: 15px; }
+        .modal-label { display: block; font-size: 11px; color: #6b7280; margin-bottom: 6px; text-transform: uppercase; font-weight: 600; }
+        .modal-input { width: 100%; padding: 10px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 14px; }
+        .modal-input:focus { border-color: #4ade80; outline: none; }
+        .modal-buttons { display: flex; gap: 10px; }
+        .modal-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
+        .modal-btn-save { background: #4ade80; color: #0e0f11; }
+        .modal-btn-save:hover { opacity: 0.9; }
+        .modal-btn-cancel { background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; }
+        .modal-btn-cancel:hover { background: #2a2d35; }
+
+        .settings-btn { padding: 6px 12px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; cursor: pointer; font-size: 11px; border-radius: 6px; margin-left: 8px; }
+        .settings-btn:hover { border-color: #4ade80; color: #4ade80; }
+    </style>
+</head>
+<body>
+
+<div id="login" class="login-screen">
+    <div class="login-box">
+        <div class="login-header">
+            <h1>Exterior PropHog</h1>
+            <p>Agent Management System</p>
+        </div>
+        
+        <div class="form-group">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <label class="form-label">Email</label>
+                <span id="email-status" style="font-size: 12px; color: #6b7280;">○ Empty</span>
+            </div>
+            <input type="email" id="email" class="form-input" placeholder="name@agency.com" oninput="checkFormFields()">
+        </div>
+
+        <div class="form-group">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <label class="form-label">Pick Your Color</label>
+                <span id="color-status" style="font-size: 12px; color: #6b7280;">○ Not Selected</span>
+            </div>
+            <div class="color-grid" id="colors">
+                <button type="button" class="color-btn" style="background: #f87171;" onclick="selectColor(0)"></button>
+                <button type="button" class="color-btn" style="background: #fb923c;" onclick="selectColor(1)"></button>
+                <button type="button" class="color-btn" style="background: #fbbf24;" onclick="selectColor(2)"></button>
+                <button type="button" class="color-btn" style="background: #facc15;" onclick="selectColor(3)"></button>
+                <button type="button" class="color-btn" style="background: #a3e635;" onclick="selectColor(4)"></button>
+                <button type="button" class="color-btn" style="background: #4ade80;" onclick="selectColor(5)"></button>
+                <button type="button" class="color-btn" style="background: #34d399;" onclick="selectColor(6)"></button>
+                <button type="button" class="color-btn" style="background: #2dd4bf;" onclick="selectColor(7)"></button>
+                <button type="button" class="color-btn" style="background: #06b6d4;" onclick="selectColor(8)"></button>
+                <button type="button" class="color-btn" style="background: #38bdf8;" onclick="selectColor(9)"></button>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <label class="form-label">Google Sheet ID</label>
+                <span id="sheet-status" style="font-size: 12px; color: #6b7280;">○ Empty</span>
+            </div>
+            <input type="text" id="sheetid" class="form-input" placeholder="Paste Sheet ID or URL" oninput="checkFormFields()">
+        </div>
+        
+        <button class="form-btn" onclick="login()">Load Agents</button>
+        <div id="error" class="error-msg"></div>
+    </div>
+</div>
+
+<div id="app" class="app-screen">
+    <header>
+        <div class="logo">🟢 Exterior PropHog</div>
+        <div class="user-info">
+            <div class="user-badge" id="badge"></div>
+            <div id="user-email" style="font-size: 11px; color: #6b7280;"></div>
+            <button class="settings-btn" onclick="openSettings()">⚙️ Settings</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </header>
+    
+    <div class="team-bar" id="team-bar"></div>
+
+    <div class="stats-panel">
+        <div class="stat-item">
+            <div class="stat-label">📊 Total Agents</div>
+            <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">☎️ Contacted</div>
+            <div class="stat-value" id="stat-contacted">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">📝 With Notes</div>
+            <div class="stat-value" id="stat-notes">0</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">🎯 Daily Goal</div>
+            <div class="stat-value" id="stat-goal">0/20</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-label">📈 Progress</div>
+            <div style="width: 100px; height: 20px; background: #1e2026; border-radius: 4px; border: 1px solid #2a2d35; overflow: hidden;">
+                <div id="progress-bar" style="height: 100%; width: 0%; background: #4ade80; transition: width 0.3s;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <aside>
+            <input type="text" class="search-box" id="search" placeholder="Search..." onkeyup="filter()">
+
+            <div class="filter-group">
+                <div class="filter-label"><span class="filter-icon">🎖️</span> License Type</div>
+                <select class="filter-dropdown" id="type-filter" onchange="filter()">
+                    <option value="">All</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-label"><span class="filter-icon">✅</span> Status</div>
+                <select class="filter-dropdown" id="status-filter" onchange="filter()">
+                    <option value="">All</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-label"><span class="filter-icon">📍</span> County</div>
+                <select class="filter-dropdown" id="county-filter" onchange="filter()">
+                    <option value="">All</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <div class="filter-label"><span class="filter-icon">🏙️</span> City</div>
+                <select class="filter-dropdown" id="city-filter" onchange="filter()">
+                    <option value="">All</option>
+                </select>
+            </div>
+
+            <button class="clear-btn" onclick="clearAll()">Clear Filters</button>
+            <button class="clear-btn" style="background: #4ade80; color: #0e0f11; font-weight: 600; margin-top: 8px;" onclick="exportCSV()">📥 Export CSV</button>
+        </aside>
+
+        <div class="table-container">
+            <div style="padding: 12px 15px; background: #1e2026; border-bottom: 1px solid #2a2d35; font-size: 11px; color: #6b7280; display: flex; justify-content: space-between; align-items: center;">
+                <span><strong id="result-count">0</strong> agents</span>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Phone</th>
+                            <th>City</th>
+                            <th>County</th>
+                            <th>License Type</th>
+                            <th>Status</th>
+                            <th>LOAS</th>
+                            <th>Resident</th>
+                            <th>License Count</th>
+                            <th>Lic Effective Date</th>
+                            <th>Active Lic Time</th>
+                            <th>Contacted</th>
+                            <th>NPN</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        <tr><td colspan="9" style="text-align: center; padding: 30px; color: #6b7280;">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="settings-modal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeSettings()">×</button>
+        <div class="modal-header">Daily Goal Settings</div>
+        <div class="modal-field">
+            <label class="modal-label">Your Daily Target (agents to contact)</label>
+            <input type="number" id="goal-input" class="modal-input" min="1" max="999" value="20">
+        </div>
+        <div style="font-size: 10px; color: #6b7280; margin-bottom: 15px;">Set your personal daily goal for agent contacts. Your progress will be tracked toward this number.</div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-save" onclick="saveGoal()">Save Goal</button>
+            <button class="modal-btn modal-btn-cancel" onclick="closeSettings()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="drawer" class="drawer">
+    <div class="drawer-header">
+        <h2 id="name">Agent Profile</h2>
+        <button class="drawer-close" onclick="close_drawer()">×</button>
+    </div>
+    <div class="drawer-body">
+        <div class="drawer-section">
+            <div class="drawer-section-title">Information</div>
+            <div class="drawer-info">
+                <p><strong>Phone:</strong> <span id="phone"></span></p>
+                <p><strong>Email:</strong> <span id="email2"></span></p>
+                <p><strong>City:</strong> <span id="city"></span></p>
+                <p><strong>County:</strong> <span id="county"></span></p>
+                <p><strong>License:</strong> <span id="license"></span></p>
+                <p><strong>NPN:</strong> <span id="npn"></span></p>
+            </div>
+        </div>
+        
+        <div class="drawer-section">
+            <div class="drawer-section-title">Assignment Status</div>
+            <select class="drawer-select" id="assignment" onchange="save()">
+                <option value="">Select...</option>
+                <option value="No Answer">No Answer</option>
+                <option value="DM Messenger/Telegram/Chat">DM Messenger/Telegram/Chat</option>
+                <option value="Sent Text Message">Sent Text Message</option>
+                <option value="Made Contact">Made Contact</option>
+                <option value="Completed Interview">Completed Interview</option>
+                <option value="AOA Started">AOA Started</option>
+                <option value="Follow up timeline/notes">Follow up timeline/notes</option>
+                <option value="Do Not Call">Do Not Call</option>
+            </select>
+        </div>
+        
+        <div class="drawer-section">
+            <div class="drawer-section-title">Schedule Appointment (Calendly)</div>
+            <div id="appt-confirmed" style="display: none;" class="appt-confirmed">✓ Appointment Confirmed!</div>
+            <input type="text" class="drawer-input" id="calendly-link" placeholder="Paste your Calendly link">
+            <button class="drawer-btn" onclick="openCalendly()">Open Calendly</button>
+        </div>
+        
+        <div class="drawer-section">
+            <div class="drawer-section-title">Call Notes</div>
+            <textarea class="drawer-textarea" id="note-input" placeholder="Add a note..."></textarea>
+            <button class="drawer-btn" onclick="addNote()">Add Note</button>
+            <div id="notes-list"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const COLORS = ['#f87171', '#fb923c', '#fbbf24', '#facc15', '#a3e635', '#4ade80', '#34d399', '#2dd4bf', '#06b6d4', '#38bdf8'];
+let user = null, color = null, email = null, sheetId = null, agents = [], filtered = [], tracker = {}, current = null, users = {};
+
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function selectColor(index) {
+    color = COLORS[index];
+    document.querySelectorAll('.color-btn').forEach((b, i) => {
+        if (i === index) {
+            b.classList.add('selected');
+        } else {
+            b.classList.remove('selected');
+        }
+    });
+    checkFormFields();
+}
+
+function checkFormFields() {
+    const email = document.getElementById('email').value.trim();
+    const sheetId = document.getElementById('sheetid').value.trim();
+
+    // Update email status
+    const emailStatus = document.getElementById('email-status');
+    if (email) {
+        emailStatus.textContent = '✓ Ready';
+        emailStatus.style.color = '#4ade80';
+    } else {
+        emailStatus.textContent = '○ Empty';
+        emailStatus.style.color = '#6b7280';
+    }
+
+    // Update color status
+    const colorStatus = document.getElementById('color-status');
+    if (color) {
+        colorStatus.textContent = '✓ Selected';
+        colorStatus.style.color = '#4ade80';
+    } else {
+        colorStatus.textContent = '○ Not Selected';
+        colorStatus.style.color = '#6b7280';
+    }
+
+    // Update sheet status
+    const sheetStatus = document.getElementById('sheet-status');
+    if (sheetId) {
+        sheetStatus.textContent = '✓ Ready';
+        sheetStatus.style.color = '#4ade80';
+    } else {
+        sheetStatus.textContent = '○ Empty';
+        sheetStatus.style.color = '#6b7280';
+    }
+}
+
+function login() {
+    const e = document.getElementById('email').value.trim();
+    const id = document.getElementById('sheetid').value.trim();
+    const msg = document.getElementById('error');
+
+    const errors = [];
+
+    if (!e) {
+        errors.push('❌ Email is required');
+    } else if (!isValidEmail(e)) {
+        errors.push('❌ Please enter a valid email address');
+    }
+
+    if (!color) {
+        errors.push('❌ Please select a color');
+    }
+
+    if (!id) {
+        errors.push('❌ Google Sheet ID or URL is required');
+    }
+
+    if (errors.length > 0) {
+        msg.innerHTML = '<strong>Please fix the following:</strong><br>' + errors.join('<br>');
+        msg.style.display = 'block';
+        return;
+    }
+
+    let finalId = id;
+    if (id.includes('docs.google.com')) {
+        const m = id.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        if (m) finalId = m[1];
+    }
+
+    fetch('/api/load-agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheetId: finalId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.ok) throw new Error(data.error);
+
+        agents = data.agents;
+        user = e;
+        email = e;
+        sheetId = finalId;
+        filtered = [...agents];
+
+        const badge = document.getElementById('badge');
+        badge.style.background = color;
+        badge.textContent = e.split('@')[0].substring(0, 2).toUpperCase();
+        document.getElementById('user-email').textContent = e;
+
+        const savedGoal = parseInt(localStorage.getItem(`goal-${e}`)) || 20;
+        users[e] = { color, name: e.split('@')[0], dailyGoal: savedGoal };
+
+        return fetch(`/api/tracker/${finalId}`);
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.ok && data.data) {
+            tracker = data.data;
+        }
+
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('app').classList.add('active');
+
+        updateTeamBar();
+        build();
+        render();
+    })
+    .catch(err => {
+        msg.textContent = 'Error: ' + err.message;
+        msg.style.display = 'block';
+    });
+}
+
+function updateTeamBar() {
+    const bar = document.getElementById('team-bar');
+    bar.innerHTML = Object.entries(users).map(([e, u]) => `
+        <div class="team-member">
+            <div class="team-badge" style="background: ${u.color};">${u.name.substring(0, 1).toUpperCase()}</div>
+            <span>${u.name}</span>
+        </div>
+    `).join('');
+}
+
+function build() {
+    const types = [...new Set(agents.map(a => a.license_type).filter(Boolean))].sort();
+    const statuses = [...new Set(agents.map(a => a.license_status).filter(Boolean))].sort();
+    const counties = [...new Set(agents.map(a => a.county).filter(Boolean))].sort();
+    const cities = [...new Set(agents.map(a => a.city).filter(Boolean))].sort();
+    
+    document.getElementById('type-filter').innerHTML = '<option value="">All</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
+    document.getElementById('status-filter').innerHTML = '<option value="">All</option>' + statuses.map(s => `<option value="${s}">${s}</option>`).join('');
+    document.getElementById('county-filter').innerHTML = '<option value="">All</option>' + counties.map(c => `<option value="${c}">${c}</option>`).join('');
+    document.getElementById('city-filter').innerHTML = '<option value="">All</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function filter() {
+    const search = document.getElementById('search').value.toLowerCase();
+    const type = document.getElementById('type-filter').value;
+    const status = document.getElementById('status-filter').value;
+    const county = document.getElementById('county-filter').value;
+    const city = document.getElementById('city-filter').value;
+    
+    filtered = agents.filter(a => {
+        const s = !search || Object.values(a).some(v => String(v).toLowerCase().includes(search));
+        const t = !type || a.license_type === type;
+        const st = !status || a.license_status === status;
+        const c = !county || a.county === county;
+        const ci = !city || a.city === city;
+        return s && t && st && c && ci;
+    });
+    
+    render();
+}
+
+function clearAll() {
+    document.getElementById('search').value = '';
+    document.getElementById('type-filter').value = '';
+    document.getElementById('status-filter').value = '';
+    document.getElementById('county-filter').value = '';
+    document.getElementById('city-filter').value = '';
+    filter();
+}
+
+function render() {
+    const body = document.getElementById('tbody');
+    document.getElementById('result-count').textContent = filtered.length;
+    updateStats();
+
+    if (!filtered.length) {
+        body.innerHTML = '<tr><td colspan="14" style="text-align: center; padding: 30px; color: #6b7280;">No results</td></tr>';
+        return;
+    }
+
+    let html = '';
+    filtered.forEach(a => {
+        const npn = a.npn_no || a.npn;
+        const isContacted = tracker[npn]?.assignment || (tracker[npn]?.notes && tracker[npn].notes.length > 0);
+        const isDNC = tracker[npn]?.dnc;
+        const displayStatus = isDNC ? 'DNC' : (a.license_status || '');
+        const statusClass = isDNC ? 'status-inactive' : (a.license_status === 'Active' ? 'status-active' : 'status-inactive');
+        const residentValue = a.is_residence ? 'Yes' : 'No';
+        const residentClass = a.is_residence ? 'contacted-yes' : 'contacted-no';
+
+        html += '<tr onclick="open_drawer(\'' + npn + '\')">';
+        html += '<td>' + (a.first_name || '') + '</td>';
+        html += '<td>' + (a.last_name || '') + '</td>';
+        html += '<td><a href="tel:' + (a.phone || '') + '" class="phone-link">' + (a.phone || '') + '</a></td>';
+        html += '<td>' + (a.city || '') + '</td>';
+        html += '<td>' + (a.county || '') + '</td>';
+        html += '<td>' + (a.license_type || '') + '</td>';
+        html += '<td><span class="' + statusClass + '">' + displayStatus + '</span></td>';
+        html += '<td>' + (a.loas || '') + '</td>';
+        html += '<td><span class="' + residentClass + '">' + residentValue + '</span></td>';
+        html += '<td>' + (a.license_count || '') + '</td>';
+        html += '<td>' + (a.license_effective_date || '') + '</td>';
+        html += '<td>' + (a.active_lic_time || '') + '</td>';
+        html += '<td><span class="' + (isContacted ? 'contacted-yes' : 'contacted-no') + '">' + (isContacted ? '✓ Yes' : '✗ No') + '</span></td>';
+        html += '<td>' + (npn || '') + '</td>';
+        html += '</tr>';
+    });
+    body.innerHTML = html;
+}
+
+function updateStats() {
+    const contactedCount = Object.keys(tracker).filter(npn => {
+        const t = tracker[npn];
+        return t.assignment || (t.notes && t.notes.length > 0);
+    }).length;
+
+    const notesCount = Object.keys(tracker).filter(npn => {
+        const t = tracker[npn];
+        return t.notes && t.notes.length > 0;
+    }).length;
+
+    const userGoal = users[email]?.dailyGoal || 20;
+    const todayCount = contactedCount; // In real app, filter by date
+    const progressPercent = Math.min((todayCount / userGoal) * 100, 100);
+
+    document.getElementById('stat-total').textContent = filtered.length;
+    document.getElementById('stat-contacted').textContent = contactedCount;
+    document.getElementById('stat-notes').textContent = notesCount;
+    document.getElementById('stat-goal').textContent = `${todayCount}/${userGoal}`;
+    document.getElementById('progress-bar').style.width = progressPercent + '%';
+}
+
+function open_drawer(npn) {
+    current = agents.find(a => (a.npn_no || a.npn) === npn);
+    if (!current) return;
+
+    const fullName = current.full_name || (current.first_name && current.last_name ? current.first_name + ' ' + current.last_name : 'Agent');
+    const emailValue = current.email || 'Not provided';
+
+    document.getElementById('name').textContent = fullName;
+    document.getElementById('phone').textContent = current.phone || 'Not provided';
+    document.getElementById('email2').textContent = emailValue;
+    document.getElementById('city').textContent = current.city || 'Not provided';
+    document.getElementById('county').textContent = current.county || 'Not provided';
+    document.getElementById('license').textContent = current.license_type || 'Not provided';
+    document.getElementById('npn').textContent = npn;
+    
+    const t = tracker[npn] || {};
+    document.getElementById('assignment').value = t.assignment || '';
+    document.getElementById('calendly-link').value = t.calendly || '';
+    document.getElementById('note-input').value = '';
+    
+    const apptConfirmed = document.getElementById('appt-confirmed');
+    if (t.appt_confirmed) {
+        apptConfirmed.style.display = 'block';
+    } else {
+        apptConfirmed.style.display = 'none';
+    }
+    
+    renderNotes(npn);
+    document.getElementById('drawer').classList.add('open');
+}
+
+function close_drawer() {
+    const npn = current.npn_no || current.npn;
+    tracker[npn] = tracker[npn] || {};
+    tracker[npn].assignment = document.getElementById('assignment').value;
+    tracker[npn].calendly = document.getElementById('calendly-link').value;
+
+    fetch('/api/save-tracker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheetId, npn, field: 'calendly', value: tracker[npn].calendly })
+    }).catch(err => console.error('Save error:', err));
+
+    document.getElementById('drawer').classList.remove('open');
+}
+
+function save() {
+    const npn = current.npn_no || current.npn;
+    tracker[npn] = tracker[npn] || {};
+    tracker[npn].assignment = document.getElementById('assignment').value;
+
+    if (tracker[npn].assignment === 'Do Not Call') {
+        tracker[npn].dnc = true;
+    } else {
+        tracker[npn].dnc = false;
+    }
+
+    fetch('/api/save-tracker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheetId, npn, field: 'assignment', value: tracker[npn].assignment })
+    }).catch(err => console.error('Save error:', err));
+
+    fetch('/api/save-tracker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheetId, npn, field: 'dnc', value: tracker[npn].dnc })
+    }).catch(err => console.error('Save error:', err));
+
+    render();
+    updateStats();
+}
+
+function openCalendly() {
+    const link = document.getElementById('calendly-link').value.trim();
+    if (!link) {
+        alert('Please paste your Calendly link first');
+        return;
+    }
+
+    const npn = current.npn_no || current.npn;
+    tracker[npn] = tracker[npn] || {};
+    tracker[npn].calendly = link;
+
+    fetch('/api/save-tracker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheetId, npn, field: 'calendly', value: link })
+    }).catch(err => console.error('Save error:', err));
+
+    window.open(link, '_blank');
+
+    setTimeout(() => {
+        tracker[npn].appt_confirmed = true;
+        fetch('/api/save-tracker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetId, npn, field: 'appt_confirmed', value: true })
+        }).catch(err => console.error('Save error:', err));
+        document.getElementById('appt-confirmed').style.display = 'block';
+    }, 1000);
+}
+
+function addNote() {
+    const text = document.getElementById('note-input').value.trim();
+    if (!text) return;
+
+    const npn = current.npn_no || current.npn;
+    tracker[npn] = tracker[npn] || {};
+    tracker[npn].notes = tracker[npn].notes || [];
+
+    const u = users[email];
+    const noteObj = {
+        text,
+        user: email,
+        name: u.name,
+        color: u.color,
+        time: new Date().toLocaleString()
+    };
+
+    tracker[npn].notes.push(noteObj);
+
+    fetch('/api/save-tracker', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sheetId, npn, field: 'notes', value: tracker[npn].notes })
+    }).catch(err => console.error('Save error:', err));
+
+    document.getElementById('note-input').value = '';
+    renderNotes(npn);
+    render();
+    updateStats();
+}
+
+function renderNotes(npn) {
+    const notes = (tracker[npn] || {}).notes || [];
+    const html = notes.map(n => `
+        <div class="note-item">
+            <div class="note-user">
+                <div class="note-badge" style="background: ${n.color};">${n.name.substring(0, 1).toUpperCase()}</div>
+                <span><strong>${n.name}</strong></span>
+                <span class="note-time">${n.time}</span>
+            </div>
+            ${n.text}
+        </div>
+    `).join('');
+    document.getElementById('notes-list').innerHTML = html;
+}
+
+function exportCSV() {
+    if (!filtered.length) {
+        alert('No agents to export');
+        return;
+    }
+
+    const headers = ['Full Name', 'Email', 'Phone', 'City', 'County', 'License Type', 'Status', 'NPN'];
+    const rows = filtered.map(a => [
+        a.full_name || '',
+        a.email || '',
+        a.phone || '',
+        a.city || '',
+        a.county || '',
+        a.license_type || '',
+        a.license_status || '',
+        a.npn_no || a.npn || ''
+    ]);
+
+    const csv = [
+        headers.join(','),
+        ...rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `agents-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+}
+
+function openSettings() {
+    const userGoal = users[email]?.dailyGoal || 20;
+    document.getElementById('goal-input').value = userGoal;
+    document.getElementById('settings-modal').classList.add('active');
+}
+
+function closeSettings() {
+    document.getElementById('settings-modal').classList.remove('active');
+}
+
+function saveGoal() {
+    const goalValue = parseInt(document.getElementById('goal-input').value);
+    if (isNaN(goalValue) || goalValue < 1) {
+        alert('Please enter a valid number (minimum 1)');
+        return;
+    }
+    users[email].dailyGoal = goalValue;
+    localStorage.setItem(`goal-${email}`, goalValue);
+    render();
+    closeSettings();
+}
+
+function logout() {
+    user = null;
+    color = null;
+    email = null;
+    sheetId = null;
+    agents = [];
+    filtered = [];
+    tracker = {};
+    users = {};
+
+    document.getElementById('email').value = '';
+    document.getElementById('sheetid').value = '';
+    document.getElementById('search').value = '';
+
+    document.getElementById('app').classList.remove('active');
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('settings-modal').classList.remove('active');
+    document.getElementById('login').style.display = 'flex';
+}
+</script>
+
+</body>
+</html>
