@@ -552,10 +552,6 @@ function login() {
         errors.push('❌ Please enter a valid email address');
     }
 
-    if (!color) {
-        errors.push('❌ Please select a color');
-    }
-
     if (!id) {
         errors.push('❌ Google Sheet ID or URL is required');
     }
@@ -588,6 +584,28 @@ function login() {
         filtered = [...agents];
 
         localStorage.setItem('remembered-email', e);
+
+        return fetch(`/api/team/${finalId}`);
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.ok && data.team) {
+            const existingMember = data.team.find(m => m.email === e);
+            if (existingMember && !color) {
+                const colorIndex = COLORS.indexOf(existingMember.color);
+                if (colorIndex >= 0) {
+                    selectColor(colorIndex);
+                }
+            }
+        }
+
+        if (!color) {
+            msg.innerHTML = '<strong>Please fix the following:</strong><br>❌ Please select a color';
+            msg.style.display = 'block';
+            return Promise.reject(new Error('Color required'));
+        }
+
+        msg.style.display = 'none';
 
         const badge = document.getElementById('badge');
         badge.style.background = color;
