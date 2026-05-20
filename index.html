@@ -478,6 +478,8 @@
 const COLORS = ['#f87171', '#fb923c', '#fbbf24', '#facc15', '#a3e635', '#4ade80', '#34d399', '#2dd4bf', '#06b6d4', '#38bdf8'];
 let user = null, color = null, email = null, sheetId = null, agents = [], filtered = [], tracker = {}, current = null, users = {};
 
+window.addEventListener('DOMContentLoaded', loadSavedEmail);
+
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -492,6 +494,14 @@ function selectColor(index) {
         }
     });
     checkFormFields();
+}
+
+function loadSavedEmail() {
+    const savedEmail = localStorage.getItem('remembered-email');
+    if (savedEmail) {
+        document.getElementById('email').value = savedEmail;
+        checkFormFields();
+    }
 }
 
 function checkFormFields() {
@@ -576,6 +586,8 @@ function login() {
         email = e;
         sheetId = finalId;
         filtered = [...agents];
+
+        localStorage.setItem('remembered-email', e);
 
         const badge = document.getElementById('badge');
         badge.style.background = color;
@@ -738,8 +750,10 @@ function render() {
         const residentClass = a.is_residence ? 'contacted-yes' : 'contacted-no';
 
         const assignedTo = tracker[npn]?.assigned_to;
+        const assignedColor = tracker[npn]?.assigned_color;
         const assignedUser = assignedTo ? users[assignedTo] : null;
-        const assignedHtml = assignedUser ? `<span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: ${assignedUser.color}; color: white; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-right: 4px;" title="${assignedUser.name}">${assignedUser.name.substring(0, 1).toUpperCase()}</span>` : '-';
+        const displayColor = assignedColor || (assignedUser ? assignedUser.color : null);
+        const assignedHtml = assignedUser ? `<span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: ${displayColor}; color: white; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-right: 4px;" title="${assignedUser.name}">${assignedUser.name.substring(0, 1).toUpperCase()}</span>` : '-';
 
         const phoneNumber = a.phone || '';
         let phoneLink = '';
@@ -856,6 +870,7 @@ function close_drawer() {
 
     if (tracker[npn].assignment && tracker[npn].assignment !== '') {
         tracker[npn].assigned_to = email;
+        tracker[npn].assigned_color = color;
     }
 
     fetch('/api/save-tracker', {
@@ -870,6 +885,12 @@ function close_drawer() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sheetId, npn, field: 'assigned_to', value: tracker[npn].assigned_to })
         }).catch(err => console.error('Save error:', err));
+
+        fetch('/api/save-tracker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetId, npn, field: 'assigned_color', value: tracker[npn].assigned_color })
+        }).catch(err => console.error('Save error:', err));
     }
 
     document.getElementById('drawer').classList.remove('open');
@@ -882,6 +903,7 @@ function save() {
 
     if (tracker[npn].assignment && tracker[npn].assignment !== '') {
         tracker[npn].assigned_to = email;
+        tracker[npn].assigned_color = color;
     }
 
     if (tracker[npn].assignment === 'Do Not Call') {
@@ -907,6 +929,12 @@ function save() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sheetId, npn, field: 'assigned_to', value: tracker[npn].assigned_to })
+        }).catch(err => console.error('Save error:', err));
+
+        fetch('/api/save-tracker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetId, npn, field: 'assigned_color', value: tracker[npn].assigned_color })
         }).catch(err => console.error('Save error:', err));
     }
 
@@ -1082,6 +1110,9 @@ function logout() {
     document.getElementById('email').value = '';
     document.getElementById('sheetid').value = '';
     document.getElementById('search').value = '';
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+
+    localStorage.removeItem('remembered-email');
 
     document.getElementById('app').classList.remove('active');
     document.getElementById('drawer').classList.remove('open');
