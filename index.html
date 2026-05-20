@@ -43,11 +43,27 @@
         .main { display: grid; grid-template-columns: 200px 1fr; gap: 15px; flex: 1; overflow: hidden; }
         
         aside { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 12px; overflow-y: auto; }
-        .filter-group { margin-bottom: 12px; }
-        .filter-label { font-size: 9px; text-transform: uppercase; color: #6b7280; font-weight: 600; margin-bottom: 6px; }
-        .filter-dropdown { width: 100%; padding: 8px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 11px; }
-        .search-box { width: 100%; padding: 8px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 11px; margin-bottom: 10px; }
-        .clear-btn { width: 100%; padding: 6px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; border-radius: 4px; cursor: pointer; font-size: 10px; }
+        .search-box { width: 100%; padding: 10px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 11px; margin-bottom: 15px; }
+
+        .filter-section { margin-bottom: 15px; border-bottom: 1px solid #2a2d35; padding-bottom: 12px; }
+        .filter-section:last-of-type { border-bottom: none; }
+        .filter-title { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 8px 0; user-select: none; }
+        .filter-title:hover { opacity: 0.8; }
+        .filter-icon { font-size: 12px; margin-right: 6px; }
+        .filter-label { font-size: 11px; color: #e8eaf0; font-weight: 500; flex: 1; }
+        .filter-toggle { font-size: 10px; color: #6b7280; transition: transform 0.2s; }
+        .filter-toggle.expanded { transform: rotate(180deg); }
+        .filter-options { display: none; margin-top: 10px; max-height: 200px; overflow-y: auto; }
+        .filter-options.open { display: block; }
+        .filter-option { display: flex; align-items: center; padding: 6px 0; font-size: 11px; }
+        .filter-option input { margin-right: 8px; cursor: pointer; }
+        .filter-option label { flex: 1; cursor: pointer; color: #6b7280; }
+        .filter-option input:checked + label { color: #4ade80; font-weight: 600; }
+
+        .clear-btn { width: 100%; padding: 10px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; border-radius: 4px; cursor: pointer; font-size: 11px; margin-bottom: 8px; font-weight: 500; }
+        .clear-btn:hover { border-color: #4ade80; color: #4ade80; }
+        .export-btn { width: 100%; padding: 10px; background: #4ade80; color: #0e0f11; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 600; margin-top: 8px; }
+        .export-btn:hover { opacity: 0.9; }
         
         .table-container { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
         .table-wrapper { flex: 1; overflow-y: auto; }
@@ -206,38 +222,98 @@
 
     <div class="main">
         <aside>
-            <input type="text" class="search-box" id="search" placeholder="Search..." onkeyup="filter()">
+            <input type="text" class="search-box" id="search" placeholder="Name, city, email, county" onkeyup="filter()">
 
-            <div class="filter-group">
-                <div class="filter-label"><span class="filter-icon">🎖️</span> License Type</div>
-                <select class="filter-dropdown" id="type-filter" onchange="filter()">
-                    <option value="">All</option>
-                </select>
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">☎️</span> Caller/Appointment</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-assignment"></div>
             </div>
 
-            <div class="filter-group">
-                <div class="filter-label"><span class="filter-icon">✅</span> Status</div>
-                <select class="filter-dropdown" id="status-filter" onchange="filter()">
-                    <option value="">All</option>
-                </select>
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">🎖️</span> License type</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-license-type"></div>
             </div>
 
-            <div class="filter-group">
-                <div class="filter-label"><span class="filter-icon">📍</span> County</div>
-                <select class="filter-dropdown" id="county-filter" onchange="filter()">
-                    <option value="">All</option>
-                </select>
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">✅</span> License status</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-license-status"></div>
             </div>
 
-            <div class="filter-group">
-                <div class="filter-label"><span class="filter-icon">🏙️</span> City</div>
-                <select class="filter-dropdown" id="city-filter" onchange="filter()">
-                    <option value="">All</option>
-                </select>
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">📋</span> Lines of authority</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-loas"></div>
             </div>
 
-            <button class="clear-btn" onclick="clearAll()">Clear Filters</button>
-            <button class="clear-btn" style="background: #4ade80; color: #0e0f11; font-weight: 600; margin-top: 8px;" onclick="exportCSV()">📥 Export CSV</button>
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">📍</span> County</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-county"></div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">🏙️</span> City</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-city"></div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">👤</span> Gender</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-gender"></div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">🏠</span> TX Resident</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-resident"></div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">#</span> License count</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-license-count"></div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">⚙️</span> Compliance</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-compliance"></div>
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title" onclick="toggleFilter(this)">
+                    <span class="filter-label"><span class="filter-icon">📜</span> License state</span>
+                    <span class="filter-toggle">▼</span>
+                </div>
+                <div class="filter-options" id="filter-license-state"></div>
+            </div>
+
+            <button class="clear-btn" onclick="clearAll()">Clear all filters</button>
+            <button class="export-btn" onclick="exportCSV()">📥 Export filtered list (CSV)</button>
         </aside>
 
         <div class="table-container">
@@ -480,43 +556,80 @@ function updateTeamBar() {
     `).join('');
 }
 
+function buildFilterOptions(fieldId, fieldName) {
+    const values = [...new Set(agents.map(a => a[fieldName]).filter(Boolean))].sort();
+    const container = document.getElementById(`filter-${fieldId}`);
+    container.innerHTML = values.map((v, i) => `
+        <div class="filter-option">
+            <input type="checkbox" id="cb-${fieldId}-${i}" value="${v}" onchange="filter()">
+            <label for="cb-${fieldId}-${i}">${v}</label>
+        </div>
+    `).join('');
+}
+
 function build() {
-    const types = [...new Set(agents.map(a => a.license_type).filter(Boolean))].sort();
-    const statuses = [...new Set(agents.map(a => a.license_status).filter(Boolean))].sort();
-    const counties = [...new Set(agents.map(a => a.county).filter(Boolean))].sort();
-    const cities = [...new Set(agents.map(a => a.city).filter(Boolean))].sort();
-    
-    document.getElementById('type-filter').innerHTML = '<option value="">All</option>' + types.map(t => `<option value="${t}">${t}</option>`).join('');
-    document.getElementById('status-filter').innerHTML = '<option value="">All</option>' + statuses.map(s => `<option value="${s}">${s}</option>`).join('');
-    document.getElementById('county-filter').innerHTML = '<option value="">All</option>' + counties.map(c => `<option value="${c}">${c}</option>`).join('');
-    document.getElementById('city-filter').innerHTML = '<option value="">All</option>' + cities.map(c => `<option value="${c}">${c}</option>`).join('');
+    buildFilterOptions('assignment', 'assignment');
+    buildFilterOptions('license-type', 'license_type');
+    buildFilterOptions('license-status', 'license_status');
+    buildFilterOptions('loas', 'loas');
+    buildFilterOptions('county', 'county');
+    buildFilterOptions('city', 'city');
+    buildFilterOptions('gender', 'gender');
+    buildFilterOptions('resident', 'is_residence');
+    buildFilterOptions('license-count', 'license_count');
+    buildFilterOptions('compliance', 'compliance');
+    buildFilterOptions('license-state', 'license_state');
+}
+
+function getSelectedFilters(fieldId, fieldName) {
+    const selected = Array.from(document.querySelectorAll(`#filter-${fieldId} input:checked`)).map(cb => cb.value);
+    return selected.length === 0 ? null : selected;
 }
 
 function filter() {
     const search = document.getElementById('search').value.toLowerCase();
-    const type = document.getElementById('type-filter').value;
-    const status = document.getElementById('status-filter').value;
-    const county = document.getElementById('county-filter').value;
-    const city = document.getElementById('city-filter').value;
-    
+    const assignment = getSelectedFilters('assignment', 'assignment');
+    const licenseType = getSelectedFilters('license-type', 'license_type');
+    const licenseStatus = getSelectedFilters('license-status', 'license_status');
+    const loas = getSelectedFilters('loas', 'loas');
+    const county = getSelectedFilters('county', 'county');
+    const city = getSelectedFilters('city', 'city');
+    const gender = getSelectedFilters('gender', 'gender');
+    const resident = getSelectedFilters('resident', 'is_residence');
+    const licenseCount = getSelectedFilters('license-count', 'license_count');
+    const compliance = getSelectedFilters('compliance', 'compliance');
+    const licenseState = getSelectedFilters('license-state', 'license_state');
+
     filtered = agents.filter(a => {
+        const npn = a.npn_no || a.npn;
         const s = !search || Object.values(a).some(v => String(v).toLowerCase().includes(search));
-        const t = !type || a.license_type === type;
-        const st = !status || a.license_status === status;
-        const c = !county || a.county === county;
-        const ci = !city || a.city === city;
-        return s && t && st && c && ci;
+        const asgn = !assignment || assignment.includes(tracker[npn]?.assignment);
+        const lt = !licenseType || licenseType.includes(a.license_type);
+        const ls = !licenseStatus || licenseStatus.includes(a.license_status);
+        const lo = !loas || loas.includes(a.loas);
+        const c = !county || county.includes(a.county);
+        const ci = !city || city.includes(a.city);
+        const g = !gender || gender.includes(a.gender);
+        const r = !resident || resident.includes(String(a.is_residence));
+        const lc = !licenseCount || licenseCount.includes(String(a.license_count));
+        const comp = !compliance || compliance.includes(a.compliance);
+        const ls2 = !licenseState || licenseState.includes(a.license_state);
+        return s && asgn && lt && ls && lo && c && ci && g && r && lc && comp && ls2;
     });
-    
+
     render();
+}
+
+function toggleFilter(element) {
+    const toggle = element.querySelector('.filter-toggle');
+    const options = element.nextElementSibling;
+    toggle.classList.toggle('expanded');
+    options.classList.toggle('open');
 }
 
 function clearAll() {
     document.getElementById('search').value = '';
-    document.getElementById('type-filter').value = '';
-    document.getElementById('status-filter').value = '';
-    document.getElementById('county-filter').value = '';
-    document.getElementById('city-filter').value = '';
+    document.querySelectorAll('.filter-options input[type="checkbox"]').forEach(cb => cb.checked = false);
     filter();
 }
 
