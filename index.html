@@ -146,6 +146,21 @@
 
         .settings-btn { padding: 6px 12px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; cursor: pointer; font-size: 11px; border-radius: 6px; margin-left: 8px; display: inline-block; }
         .settings-btn:hover { border-color: #4ade80; color: #4ade80; }
+
+        .tab-btn { padding: 6px 12px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; cursor: pointer; font-size: 11px; border-radius: 6px; }
+        .tab-btn.active { background: #4ade80; color: #0e0f11; font-weight: 600; }
+        .tab-btn:hover:not(.active) { border-color: #4ade80; color: #4ade80; }
+
+        .team-dashboard { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; overflow: auto; display: none; padding: 15px; flex: 1; }
+        .team-dashboard.active { display: block; }
+        .dashboard-grid { display: grid; grid-template-columns: auto repeat(14, 1fr); gap: 1px; background: #2a2d35; padding: 1px; border: 1px solid #2a2d35; border-radius: 4px; overflow: auto; }
+        .dashboard-header { background: #1e2026; padding: 8px 10px; font-weight: 600; font-size: 11px; text-align: center; color: #6b7280; min-width: 120px; }
+        .dashboard-date-header { background: #1e2026; padding: 6px 4px; font-weight: 600; font-size: 10px; text-align: center; color: #6b7280; }
+        .dashboard-member { background: #1e2026; padding: 8px 10px; font-size: 12px; min-width: 120px; font-weight: 500; }
+        .dashboard-member.current { background: #16a34a; color: white; }
+        .dashboard-cell { background: #16181c; padding: 8px 4px; text-align: center; font-size: 11px; border: 1px solid #2a2d35; min-width: 50px; }
+        .dashboard-cell.hit { background: #16a34a; color: white; font-weight: 600; }
+        .dashboard-cell.missed { background: #6b7280; color: white; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -200,6 +215,10 @@
 <div id="app" class="app-screen">
     <header>
         <div class="logo">🟢 Exterior PropHog</div>
+        <div style="display: flex; gap: 10px;">
+            <button class="tab-btn active" id="tab-agents" onclick="showAgentTable()">📊 Agents</button>
+            <button class="tab-btn" id="tab-dashboard" onclick="showTeamDashboard()">📈 Team Goals</button>
+        </div>
         <div class="user-info">
             <div class="user-badge" id="badge"></div>
             <div id="user-email" style="font-size: 11px; color: #6b7280;"></div>
@@ -257,14 +276,6 @@
 
             <div class="filter-section">
                 <div class="filter-title" onclick="toggleFilter(this)">
-                    <span class="filter-label"><span class="filter-icon">✅</span> License status</span>
-                    <span class="filter-toggle">▼</span>
-                </div>
-                <div class="filter-options" id="filter-license-status"></div>
-            </div>
-
-            <div class="filter-section">
-                <div class="filter-title" onclick="toggleFilter(this)">
                     <span class="filter-label"><span class="filter-icon">📋</span> Lines of authority</span>
                     <span class="filter-toggle">▼</span>
                 </div>
@@ -300,7 +311,16 @@
                     <span class="filter-label"><span class="filter-icon">🏠</span> TX Resident</span>
                     <span class="filter-toggle">▼</span>
                 </div>
-                <div class="filter-options" id="filter-resident"></div>
+                <div class="filter-options open" id="filter-resident">
+                    <div class="filter-option">
+                        <input type="checkbox" id="resident-yes" value="Yes" onchange="filter()">
+                        <label for="resident-yes">Yes</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="resident-no" value="No" onchange="filter()">
+                        <label for="resident-no">No</label>
+                    </div>
+                </div>
             </div>
 
             <div class="filter-section">
@@ -308,15 +328,16 @@
                     <span class="filter-label"><span class="filter-icon">#</span> License count</span>
                     <span class="filter-toggle">▼</span>
                 </div>
-                <div class="filter-options" id="filter-license-count"></div>
-            </div>
-
-            <div class="filter-section">
-                <div class="filter-title" onclick="toggleFilter(this)">
-                    <span class="filter-label"><span class="filter-icon">⚙️</span> Compliance</span>
-                    <span class="filter-toggle">▼</span>
+                <div class="filter-options open" id="filter-license-count" style="padding: 10px 0;">
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                        <label style="font-size: 11px; color: #6b7280; min-width: 40px;">Min:</label>
+                        <input type="number" id="license-count-min" min="0" style="width: 60px; padding: 6px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 12px;" onchange="filter()">
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                        <label style="font-size: 11px; color: #6b7280; min-width: 40px;">Max:</label>
+                        <input type="number" id="license-count-max" min="0" style="width: 60px; padding: 6px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 12px;" onchange="filter()">
+                    </div>
                 </div>
-                <div class="filter-options" id="filter-compliance"></div>
             </div>
 
             <div class="filter-section">
@@ -363,6 +384,7 @@
             </div>
         </div>
     </div>
+    <div id="team-dashboard" class="team-dashboard"></div>
 </div>
 
 <div id="settings-modal" class="modal">
@@ -712,6 +734,8 @@ function login() {
         updateTeamBar();
         build();
         render();
+        updateStats();
+        renderTeamDashboard();
     })
     .catch(err => {
         msg.textContent = 'Error: ' + err.message;
@@ -730,8 +754,10 @@ function updateTeamBar() {
 }
 
 function buildFilterOptions(fieldId, fieldName) {
+    if (fieldId === 'resident' || fieldId === 'license-count') return;
     const values = [...new Set(agents.map(a => a[fieldName]).filter(Boolean))].sort();
     const container = document.getElementById(`filter-${fieldId}`);
+    if (!container) return;
     container.innerHTML = values.map((v, i) => `
         <div class="filter-option">
             <input type="checkbox" id="cb-${fieldId}-${i}" value="${v}" onchange="filter()">
@@ -743,14 +769,10 @@ function buildFilterOptions(fieldId, fieldName) {
 function build() {
     buildFilterOptions('assignment', 'assignment');
     buildFilterOptions('license-type', 'license_type');
-    buildFilterOptions('license-status', 'license_status');
     buildFilterOptions('loas', 'loas');
     buildFilterOptions('county', 'county');
     buildFilterOptions('city', 'city');
     buildFilterOptions('gender', 'gender');
-    buildFilterOptions('resident', 'is_residence');
-    buildFilterOptions('license-count', 'license_count');
-    buildFilterOptions('compliance', 'compliance');
     buildFilterOptions('license-state', 'license_state');
 }
 
@@ -763,31 +785,34 @@ function filter() {
     const search = document.getElementById('search').value.toLowerCase();
     const assignment = getSelectedFilters('assignment', 'assignment');
     const licenseType = getSelectedFilters('license-type', 'license_type');
-    const licenseStatus = getSelectedFilters('license-status', 'license_status');
     const loas = getSelectedFilters('loas', 'loas');
     const county = getSelectedFilters('county', 'county');
     const city = getSelectedFilters('city', 'city');
     const gender = getSelectedFilters('gender', 'gender');
-    const resident = getSelectedFilters('resident', 'is_residence');
-    const licenseCount = getSelectedFilters('license-count', 'license_count');
-    const compliance = getSelectedFilters('compliance', 'compliance');
     const licenseState = getSelectedFilters('license-state', 'license_state');
+
+    const residentYes = document.getElementById('resident-yes')?.checked;
+    const residentNo = document.getElementById('resident-no')?.checked;
+    const resident = (residentYes || residentNo) ? [] : null;
+    if (residentYes) resident.push('Yes');
+    if (residentNo) resident.push('No');
+
+    const licenseCountMin = parseInt(document.getElementById('license-count-min')?.value) || 0;
+    const licenseCountMax = parseInt(document.getElementById('license-count-max')?.value) || Infinity;
 
     filtered = agents.filter(a => {
         const npn = a.npn_no || a.npn;
         const s = !search || Object.values(a).some(v => String(v).toLowerCase().includes(search));
         const asgn = !assignment || assignment.includes(tracker[npn]?.assignment);
         const lt = !licenseType || licenseType.includes(a.license_type);
-        const ls = !licenseStatus || licenseStatus.includes(a.license_status);
         const lo = !loas || loas.includes(a.loas);
         const c = !county || county.includes(a.county);
         const ci = !city || city.includes(a.city);
         const g = !gender || gender.includes(a.gender);
         const r = !resident || resident.includes(String(a.is_residence));
-        const lc = !licenseCount || licenseCount.includes(String(a.license_count));
-        const comp = !compliance || compliance.includes(a.compliance);
+        const lc = (licenseCountMin === 0 && licenseCountMax === Infinity) || (parseInt(a.license_count) >= licenseCountMin && parseInt(a.license_count) <= licenseCountMax);
         const ls2 = !licenseState || licenseState.includes(a.license_state);
-        return s && asgn && lt && ls && lo && c && ci && g && r && lc && comp && ls2;
+        return s && asgn && lt && lo && c && ci && g && r && lc && ls2;
     });
 
     render();
@@ -891,6 +916,10 @@ function updateStats() {
     document.getElementById('stat-notes').textContent = notesCount;
     document.getElementById('stat-goal').textContent = `${todayGoalCount}/${userGoal}`;
     document.getElementById('progress-bar').style.width = progressPercent + '%';
+
+    if (document.getElementById('team-dashboard').classList.contains('active')) {
+        renderTeamDashboard();
+    }
 }
 
 function open_drawer(npn) {
@@ -1229,6 +1258,75 @@ function logout() {
     document.getElementById('drawer').classList.remove('open');
     document.getElementById('settings-modal').classList.remove('active');
     document.getElementById('login').style.display = 'flex';
+}
+
+function calculateTeamGoalHistory() {
+    const history = [];
+    const team = tracker['_team'] || [];
+    const dateRange = [];
+
+    for (let i = 13; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        dateRange.push(d.toISOString().split('T')[0]);
+    }
+
+    for (const member of team) {
+        const memberHistory = { member: member.name, email: member.email, goal: users[member.email]?.dailyGoal || 20, days: [] };
+
+        for (const dateStr of dateRange) {
+            const count = Object.keys(tracker).filter(npn => {
+                if (npn === '_team') return false;
+                const t = tracker[npn];
+                return t.assignment === 'Called / Made Contact' && t.called_date === dateStr && t.assigned_to === member.email;
+            }).length;
+
+            memberHistory.days.push({ date: dateStr, count, hit: count >= memberHistory.goal });
+        }
+        history.push(memberHistory);
+    }
+
+    return { history, dateRange };
+}
+
+function renderTeamDashboard() {
+    const { history, dateRange } = calculateTeamGoalHistory();
+    const container = document.getElementById('team-dashboard');
+    let html = '<div class="dashboard-grid">';
+
+    html += '<div class="dashboard-header">Team Member</div>';
+    for (const date of dateRange) {
+        const d = new Date(date);
+        html += `<div class="dashboard-date-header">${(d.getMonth()+1)}/${d.getDate()}</div>`;
+    }
+
+    for (const member of history) {
+        const isCurrent = member.email === email;
+        html += `<div class="dashboard-member ${isCurrent ? 'current' : ''}">${member.member}</div>`;
+
+        for (const day of member.days) {
+            const hitClass = day.hit ? 'hit' : 'missed';
+            html += `<div class="dashboard-cell ${hitClass}">${day.count}/${member.goal}</div>`;
+        }
+    }
+
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function showAgentTable() {
+    document.getElementById('team-dashboard').classList.remove('active');
+    document.querySelector('.main').style.display = 'grid';
+    document.getElementById('tab-agents').classList.add('active');
+    document.getElementById('tab-dashboard').classList.remove('active');
+}
+
+function showTeamDashboard() {
+    document.querySelector('.main').style.display = 'none';
+    document.getElementById('team-dashboard').classList.add('active');
+    document.getElementById('tab-dashboard').classList.add('active');
+    document.getElementById('tab-agents').classList.remove('active');
+    renderTeamDashboard();
 }
 </script>
 
