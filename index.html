@@ -37,25 +37,25 @@
         .logout-btn { padding: 6px 12px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; cursor: pointer; font-size: 11px; border-radius: 6px; }
         
         .team-bar { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 10px 15px; display: flex; gap: 15px; align-items: center; overflow-x: auto; }
-        .team-member { display: flex; align-items: center; gap: 6px; font-size: 11px; padding: 6px 10px; background: #1e2026; border-radius: 6px; }
+        .team-member { display: flex; align-items: center; gap: 6px; font-size: 12px; padding: 6px 10px; background: #1e2026; border-radius: 6px; }
         .team-badge { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 9px; }
         
         .main { display: grid; grid-template-columns: 200px 1fr; gap: 15px; flex: 1; overflow: hidden; }
         
         aside { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 12px; overflow-y: auto; }
-        .search-box { width: 100%; padding: 10px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 11px; margin-bottom: 15px; }
+        .search-box { width: 100%; padding: 10px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 13px; margin-bottom: 15px; }
 
         .filter-section { margin-bottom: 15px; border-bottom: 1px solid #2a2d35; padding-bottom: 12px; }
         .filter-section:last-of-type { border-bottom: none; }
         .filter-title { display: flex; align-items: center; justify-content: space-between; cursor: pointer; padding: 8px 0; user-select: none; }
         .filter-title:hover { opacity: 0.8; }
         .filter-icon { font-size: 12px; margin-right: 6px; }
-        .filter-label { font-size: 11px; color: #e8eaf0; font-weight: 500; flex: 1; }
-        .filter-toggle { font-size: 10px; color: #6b7280; transition: transform 0.2s; }
+        .filter-label { font-size: 13px; color: #e8eaf0; font-weight: 500; flex: 1; }
+        .filter-toggle { font-size: 12px; color: #6b7280; transition: transform 0.2s; }
         .filter-toggle.expanded { transform: rotate(180deg); }
         .filter-options { display: none; margin-top: 10px; max-height: 200px; overflow-y: auto; }
         .filter-options.open { display: block; }
-        .filter-option { display: flex; align-items: center; padding: 6px 0; font-size: 11px; }
+        .filter-option { display: flex; align-items: center; padding: 6px 0; font-size: 12px; }
         .filter-option input { margin-right: 8px; cursor: pointer; }
         .filter-option label { flex: 1; cursor: pointer; color: #6b7280; }
         .filter-option input:checked + label { color: #4ade80; font-weight: 600; }
@@ -67,38 +67,48 @@
         
         .table-container { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
         .table-wrapper { flex: 1; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
         thead { background: #1e2026; position: sticky; top: 0; }
-        th { padding: 8px; text-align: left; font-size: 9px; text-transform: uppercase; color: #6b7280; font-weight: 600; border-bottom: 1px solid #2a2d35; }
+        th { padding: 8px; text-align: left; font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 600; border-bottom: 1px solid #2a2d35; }
         td { padding: 8px; border-bottom: 1px solid #2a2d35; }
         tbody tr:hover { background: #1e2026; cursor: pointer; }
         .badge { display: inline-block; padding: 2px 6px; background: #1e2026; border-radius: 3px; font-size: 9px; color: #6b7280; }
         
-        .drawer { position: fixed; top: 0; right: -450px; width: 450px; height: 100vh; background: #16181c; border-left: 1px solid #2a2d35; transition: right 0.3s; z-index: 100; overflow-y: auto; display: flex; flex-direction: column; }
+        .drawer { position: fixed; top: 0; right: -500px; width: 500px; height: 100vh; background: #0e0f11; border-left: 1px solid #2a2d35; transition: right 0.3s; z-index: 100; overflow-y: auto; display: flex; flex-direction: column; }
         .drawer.open { right: 0; }
-        .drawer-header { padding: 15px 20px; border-bottom: 1px solid #2a2d35; display: flex; align-items: center; justify-content: space-between; }
-        .drawer-header h2 { font-size: 15px; }
-        .drawer-close { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 20px; padding: 0; }
+        .drawer-header { padding: 20px; background: #16181c; border-bottom: 1px solid #2a2d35; display: flex; align-items: flex-start; justify-content: space-between; }
+        .drawer-header-content { flex: 1; }
+        .drawer-header h2 { font-size: 20px; font-weight: 700; color: #e8eaf0; margin-bottom: 8px; }
+        .drawer-close { background: none; border: none; color: #6b7280; cursor: pointer; font-size: 24px; padding: 0; }
         .drawer-close:hover { color: #e8eaf0; }
         .drawer-body { flex: 1; padding: 20px; overflow-y: auto; }
-        .drawer-section { margin-bottom: 20px; }
-        .drawer-section-title { font-size: 10px; text-transform: uppercase; color: #4ade80; font-weight: 600; margin-bottom: 8px; }
+
+        .profile-card { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+        .profile-row { display: flex; align-items: flex-start; margin-bottom: 12px; gap: 10px; }
+        .profile-row:last-child { margin-bottom: 0; }
+        .profile-label { font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: 600; min-width: 80px; }
+        .profile-value { font-size: 12px; color: #e8eaf0; flex: 1; }
+        .profile-value.highlight { color: #4ade80; font-weight: 600; }
+        .profile-section-title { font-size: 12px; font-weight: 700; color: #e8eaf0; margin-bottom: 12px; margin-top: 16px; }
+
+        .drawer-section { margin-bottom: 15px; }
+        .drawer-section-title { font-size: 11px; text-transform: uppercase; color: #4ade80; font-weight: 600; margin-bottom: 10px; display: inline-block; background: #1e2026; padding: 4px 8px; border-radius: 4px; }
         .drawer-info { font-size: 11px; color: #6b7280; line-height: 1.6; }
         .drawer-info p { margin-bottom: 5px; }
-        .drawer-input, .drawer-select, .drawer-textarea { width: 100%; padding: 8px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 11px; font-family: inherit; margin-bottom: 6px; }
+        .drawer-input, .drawer-select, .drawer-textarea { width: 100%; padding: 8px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 13px; font-family: inherit; margin-bottom: 6px; }
         .drawer-textarea { min-height: 60px; resize: vertical; }
-        .drawer-btn { width: 100%; padding: 8px; background: #4ade80; color: #0e0f11; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; margin-bottom: 6px; }
+        .drawer-btn { width: 100%; padding: 8px; background: #4ade80; color: #0e0f11; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; margin-bottom: 6px; }
         .drawer-btn:hover { opacity: 0.9; }
-        .note-item { background: #1e2026; padding: 8px; border-radius: 4px; margin-bottom: 6px; font-size: 10px; }
+        .note-item { background: #1e2026; padding: 8px; border-radius: 4px; margin-bottom: 6px; font-size: 12px; }
         .note-user { display: flex; align-items: center; gap: 4px; margin-bottom: 3px; }
-        .note-badge { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 8px; }
-        .note-time { color: #6b7280; font-size: 9px; }
-        .appt-confirmed { background: #16a34a; color: white; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 11px; text-align: center; }
+        .note-badge { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 10px; }
+        .note-time { color: #6b7280; font-size: 11px; }
+        .appt-confirmed { background: #16a34a; color: white; padding: 8px; border-radius: 4px; margin-bottom: 10px; font-size: 12px; text-align: center; }
 
-        .stats-panel { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 12px 15px; display: flex; gap: 20px; font-size: 11px; flex-wrap: wrap; }
+        .stats-panel { background: #16181c; border: 1px solid #2a2d35; border-radius: 8px; padding: 12px 15px; display: flex; gap: 20px; font-size: 13px; flex-wrap: wrap; }
         .stat-item { display: flex; flex-direction: column; gap: 2px; }
-        .stat-label { color: #6b7280; font-size: 9px; text-transform: uppercase; font-weight: 600; }
-        .stat-value { color: #4ade80; font-weight: 700; font-size: 16px; }
+        .stat-label { color: #6b7280; font-size: 11px; text-transform: uppercase; font-weight: 600; }
+        .stat-value { color: #4ade80; font-weight: 700; font-size: 18px; }
 
         .filter-label-with-icon { display: flex; align-items: center; gap: 6px; }
         .filter-icon { font-size: 12px; }
@@ -123,7 +133,7 @@
         .modal-input { width: 100%; padding: 10px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 14px; }
         .modal-input:focus { border-color: #4ade80; outline: none; }
         .modal-buttons { display: flex; gap: 10px; }
-        .modal-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 11px; }
+        .modal-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
         .modal-btn-save { background: #4ade80; color: #0e0f11; }
         .modal-btn-save:hover { opacity: 0.9; }
         .modal-btn-cancel { background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; }
@@ -382,26 +392,59 @@
 
 <div id="drawer" class="drawer">
     <div class="drawer-header">
-        <h2 id="name">Agent Profile</h2>
+        <div class="drawer-header-content">
+            <h2 id="name">Agent Profile</h2>
+            <div id="location-info" style="font-size: 11px; color: #6b7280; margin-top: 4px;"></div>
+        </div>
         <button class="drawer-close" onclick="close_drawer()">×</button>
     </div>
     <div class="drawer-body">
-        <div class="drawer-section">
-            <div class="drawer-section-title">Information</div>
-            <div class="drawer-info">
-                <p><strong>Phone:</strong> <span id="phone"></span></p>
-                <p><strong>Email:</strong> <span id="email2"></span></p>
-                <p><strong>City:</strong> <span id="city"></span></p>
-                <p><strong>County:</strong> <span id="county"></span></p>
-                <p><strong>License:</strong> <span id="license"></span></p>
-                <p><strong>NPN:</strong> <span id="npn"></span></p>
+        <!-- Contact Info Card -->
+        <div class="profile-card">
+            <div class="profile-row">
+                <div class="profile-label">☎️</div>
+                <a id="phone-link" href="" class="phone-link" onclick="event.stopPropagation()"></a>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">📧</div>
+                <div class="profile-value" id="email2"></div>
             </div>
         </div>
-        
-        <div class="drawer-section">
-            <div class="drawer-section-title">Assignment Status</div>
-            <select class="drawer-select" id="assignment" onchange="save()">
-                <option value="">Select...</option>
+
+        <!-- Details Card -->
+        <div class="profile-card">
+            <div class="profile-row">
+                <div class="profile-label">Type</div>
+                <div class="profile-value" id="license"></div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">NPN #</div>
+                <div class="profile-value" id="npn"></div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">License #</div>
+                <div class="profile-value" id="license-num"></div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Effective Date</div>
+                <div class="profile-value" id="lic-date"></div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Current State</div>
+                <div class="profile-value" id="state"></div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Experience</div>
+                <div class="profile-value" id="experience"></div>
+            </div>
+        </div>
+
+        <!-- Assignment Status -->
+        <div class="profile-card">
+            <div class="profile-section-title">Next Steps</div>
+            <select class="drawer-select" id="assignment" onchange="save()" style="margin-bottom: 0;">
+                <option value="">Select status...</option>
+                <option value="Called">Called</option>
                 <option value="No Answer">No Answer</option>
                 <option value="DM Messenger/Telegram/Chat">DM Messenger/Telegram/Chat</option>
                 <option value="Sent Text Message">Sent Text Message</option>
@@ -412,18 +455,20 @@
                 <option value="Do Not Call">Do Not Call</option>
             </select>
         </div>
-        
-        <div class="drawer-section">
-            <div class="drawer-section-title">Schedule Appointment (Calendly)</div>
+
+        <!-- Calendly Section -->
+        <div class="profile-card">
+            <div class="profile-section-title">Schedule Appointment (Calendly)</div>
             <div id="appt-confirmed" style="display: none;" class="appt-confirmed">✓ Appointment Confirmed!</div>
             <input type="text" class="drawer-input" id="calendly-link" placeholder="Paste your Calendly link">
             <button class="drawer-btn" onclick="openCalendly()">Open Calendly</button>
         </div>
-        
-        <div class="drawer-section">
-            <div class="drawer-section-title">Call Notes</div>
+
+        <!-- Notes Section -->
+        <div class="profile-card">
+            <button class="drawer-btn" style="background: #1e2026; color: #4ade80; border: 1px solid #2a2d35; margin-bottom: 12px;">📝 NOTES</button>
             <textarea class="drawer-textarea" id="note-input" placeholder="Add a note..."></textarea>
-            <button class="drawer-btn" onclick="addNote()">Add Note</button>
+            <button class="drawer-btn" onclick="addNote()" style="margin-bottom: 12px;">Add Note</button>
             <div id="notes-list"></div>
         </div>
     </div>
@@ -755,14 +800,37 @@ function open_drawer(npn) {
 
     const fullName = current.full_name || (current.first_name && current.last_name ? current.first_name + ' ' + current.last_name : 'Agent');
     const emailValue = current.email || 'Not provided';
+    const phoneNumber = current.phone || '';
+    const useGoogleVoice = localStorage.getItem(`gv-enabled-${email}`) === 'true';
 
     document.getElementById('name').textContent = fullName;
-    document.getElementById('phone').textContent = current.phone || 'Not provided';
+    document.getElementById('location-info').textContent = (current.city || 'Unknown') + ', ' + (current.county || 'Unknown');
+
+    // Phone link - use Google Voice if enabled, otherwise tel:
+    const phoneLink = document.getElementById('phone-link');
+    if (phoneNumber) {
+        if (useGoogleVoice) {
+            phoneLink.href = 'https://voice.google.com/u/0/';
+            phoneLink.target = '_blank';
+            phoneLink.textContent = phoneNumber;
+            phoneLink.onclick = (e) => { e.stopPropagation(); window.open('https://voice.google.com/u/0/', '_blank'); };
+        } else {
+            phoneLink.href = 'tel:' + phoneNumber;
+            phoneLink.textContent = phoneNumber;
+            phoneLink.target = '';
+        }
+    } else {
+        phoneLink.href = '';
+        phoneLink.textContent = 'Not provided';
+    }
+
     document.getElementById('email2').textContent = emailValue;
-    document.getElementById('city').textContent = current.city || 'Not provided';
-    document.getElementById('county').textContent = current.county || 'Not provided';
     document.getElementById('license').textContent = current.license_type || 'Not provided';
     document.getElementById('npn').textContent = npn;
+    document.getElementById('license-num').textContent = current.license_number || current.lic_number || 'Not provided';
+    document.getElementById('lic-date').textContent = current.license_effective_date || 'Not provided';
+    document.getElementById('state').textContent = current.state || current.license_state || 'Not provided';
+    document.getElementById('experience').textContent = current.experience || 'Not provided';
     
     const t = tracker[npn] || {};
     document.getElementById('assignment').value = t.assignment || '';
