@@ -449,11 +449,10 @@
             <div class="profile-section-title">Next Steps</div>
             <select class="drawer-select" id="assignment" onchange="save()" style="margin-bottom: 0;">
                 <option value="">Select status...</option>
-                <option value="Called">Called</option>
+                <option value="Called / Made Contact">Called / Made Contact</option>
                 <option value="No Answer">No Answer</option>
                 <option value="DM Messenger/Telegram/Chat">DM Messenger/Telegram/Chat</option>
                 <option value="Sent Text Message">Sent Text Message</option>
-                <option value="Made Contact">Made Contact</option>
                 <option value="Completed Interview">Completed Interview</option>
                 <option value="AOA Started">AOA Started</option>
                 <option value="Follow up timeline/notes">Follow up timeline/notes</option>
@@ -867,6 +866,8 @@ function render() {
 }
 
 function updateStats() {
+    const today = new Date().toISOString().split('T')[0];
+
     const contactedCount = Object.keys(tracker).filter(npn => {
         const t = tracker[npn];
         return t.assignment || (t.notes && t.notes.length > 0);
@@ -877,14 +878,18 @@ function updateStats() {
         return t.notes && t.notes.length > 0;
     }).length;
 
+    const todayGoalCount = Object.keys(tracker).filter(npn => {
+        const t = tracker[npn];
+        return t.assignment === 'Called / Made Contact' && t.called_date === today;
+    }).length;
+
     const userGoal = users[email]?.dailyGoal || 20;
-    const todayCount = contactedCount; // In real app, filter by date
-    const progressPercent = Math.min((todayCount / userGoal) * 100, 100);
+    const progressPercent = Math.min((todayGoalCount / userGoal) * 100, 100);
 
     document.getElementById('stat-total').textContent = filtered.length;
     document.getElementById('stat-contacted').textContent = contactedCount;
     document.getElementById('stat-notes').textContent = notesCount;
-    document.getElementById('stat-goal').textContent = `${todayCount}/${userGoal}`;
+    document.getElementById('stat-goal').textContent = `${todayGoalCount}/${userGoal}`;
     document.getElementById('progress-bar').style.width = progressPercent + '%';
 }
 
@@ -955,11 +960,23 @@ function close_drawer() {
         tracker[npn].assigned_color = color;
     }
 
+    if (tracker[npn].assignment === 'Called / Made Contact') {
+        tracker[npn].called_date = new Date().toISOString().split('T')[0];
+    }
+
     fetch('/api/save-tracker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sheetId, npn, field: 'calendly', value: tracker[npn].calendly })
     }).catch(err => console.error('Save error:', err));
+
+    if (tracker[npn].assignment === 'Called / Made Contact') {
+        fetch('/api/save-tracker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetId, npn, field: 'called_date', value: tracker[npn].called_date })
+        }).catch(err => console.error('Save error:', err));
+    }
 
     if (tracker[npn].assigned_to) {
         fetch('/api/save-tracker', {
@@ -988,6 +1005,10 @@ function save() {
         tracker[npn].assigned_color = color;
     }
 
+    if (tracker[npn].assignment === 'Called / Made Contact') {
+        tracker[npn].called_date = new Date().toISOString().split('T')[0];
+    }
+
     if (tracker[npn].assignment === 'Do Not Call') {
         tracker[npn].dnc = true;
     } else {
@@ -1005,6 +1026,14 @@ function save() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sheetId, npn, field: 'dnc', value: tracker[npn].dnc })
     }).catch(err => console.error('Save error:', err));
+
+    if (tracker[npn].assignment === 'Called / Made Contact') {
+        fetch('/api/save-tracker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetId, npn, field: 'called_date', value: tracker[npn].called_date })
+        }).catch(err => console.error('Save error:', err));
+    }
 
     if (tracker[npn].assigned_to) {
         fetch('/api/save-tracker', {
