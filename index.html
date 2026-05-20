@@ -830,7 +830,7 @@ function open_drawer(npn) {
     document.getElementById('license-num').textContent = current.license_number || current.lic_number || 'Not provided';
     document.getElementById('lic-date').textContent = current.license_effective_date || 'Not provided';
     document.getElementById('state').textContent = current.state || current.license_state || 'Not provided';
-    document.getElementById('experience').textContent = current.experience || 'Not provided';
+    document.getElementById('experience').textContent = current.active_lic_time || 'Not provided';
     
     const t = tracker[npn] || {};
     document.getElementById('assignment').value = t.assignment || '';
