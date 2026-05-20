@@ -176,9 +176,15 @@ app.post('/api/team-member/add', (req, res) => {
     if (existingIndex >= 0) {
       team[existingIndex] = { email, color, name };
     } else {
-      // Check 5-person limit
-      if (team.length >= 5) {
-        return res.status(400).json({ ok: false, error: 'Team capacity (5 members) reached' });
+      // Check for duplicate color (unless it's a generated color with hsl)
+      const colorExists = team.some(t => t.color === color);
+      if (colorExists) {
+        return res.status(400).json({ ok: false, error: 'Color already in use by another team member' });
+      }
+
+      // Check 100-person limit
+      if (team.length >= 100) {
+        return res.status(400).json({ ok: false, error: 'Team capacity (100 members) reached' });
       }
       team.push({ email, color, name });
     }

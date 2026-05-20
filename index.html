@@ -20,7 +20,9 @@
         .form-input:focus { border-color: #4ade80; outline: none; }
         .color-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; margin-top: 10px; }
         .color-btn { width: 100%; aspect-ratio: 1; border: 3px solid #2a2d35; border-radius: 8px; cursor: pointer; transition: all 0.2s; position: relative; }
-        .color-btn:hover { transform: scale(1.1); }
+        .color-btn:hover:not(.taken) { transform: scale(1.1); }
+        .color-btn.taken { cursor: not-allowed; opacity: 0.5; position: relative; }
+        .color-btn.taken::before { content: '✕'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 20px; font-weight: bold; text-shadow: 0 0 4px rgba(0,0,0,.8); z-index: 2; }
         .color-btn.selected { border: 5px solid #ffffff; box-shadow: 0 0 20px rgba(255,255,255,.8), inset 0 0 0 2px rgba(255,255,255,.6); }
         .color-btn.selected::after { content: '✓'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; font-weight: bold; text-shadow: 0 0 4px rgba(0,0,0,.8); }
         .form-btn { width: 100%; padding: 12px; background: #4ade80; color: #0e0f11; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 10px; }
@@ -476,18 +478,58 @@
 
 <script>
 const COLORS = ['#f87171', '#fb923c', '#fbbf24', '#facc15', '#a3e635', '#4ade80', '#34d399', '#2dd4bf', '#06b6d4', '#38bdf8'];
-let user = null, color = null, email = null, sheetId = null, agents = [], filtered = [], tracker = {}, current = null, users = {};
+let user = null, color = null, email = null, sheetId = null, agents = [], filtered = [], tracker = {}, current = null, users = {}, usedColors = [], availableColors = [];
 
 window.addEventListener('DOMContentLoaded', loadSavedEmail);
+
+function generateColor(index) {
+    const hue = (index * 137.5) % 360;
+    const saturation = 70 + (index % 3) * 5;
+    const lightness = 55 + (index % 2) * 5;
+    return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
+function getAvailableColors() {
+    return COLORS.filter(c => !usedColors.includes(c));
+}
+
+function getOrGenerateColor() {
+    const available = getAvailableColors();
+    if (available.length > 0) {
+        return available;
+    }
+    const generatedCount = Math.ceil(usedColors.length / COLORS.length);
+    const generated = [];
+    for (let i = 0; i < 10; i++) {
+        generated.push(generateColor(COLORS.length + generatedCount * 10 + i));
+    }
+    return generated;
+}
 
 function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function selectColor(index) {
-    color = COLORS[index];
-    document.querySelectorAll('.color-btn').forEach((b, i) => {
-        if (i === index) {
+function rebuildColorPicker() {
+    const available = getAvailableColors();
+    const allColors = available.length > 0 ? available : getOrGenerateColor();
+    const container = document.getElementById('colors');
+
+    container.innerHTML = allColors.map((c, i) => {
+        const isTaken = usedColors.includes(c);
+        const isSelected = color === c;
+        return `<button type="button" class="color-btn ${isSelected ? 'selected' : ''} ${isTaken ? 'taken' : ''}" style="background: ${c}; opacity: ${isTaken ? 0.5 : 1}; cursor: ${isTaken ? 'not-allowed' : 'pointer'};" onclick="${isTaken ? 'alert(\'This color is already in use by another team member\'); return false;' : `selectColor('${c}')`}" title="${isTaken ? 'Taken by ' + usedColors.indexOf(c) : ''}"></button>`;
+    }).join('');
+}
+
+function selectColor(colorValue) {
+    if (typeof colorValue === 'number') {
+        color = COLORS[colorValue];
+    } else {
+        color = colorValue;
+    }
+    document.querySelectorAll('.color-btn').forEach(b => {
+        if (b.style.background === color) {
             b.classList.add('selected');
         } else {
             b.classList.remove('selected');
@@ -590,13 +632,19 @@ function login() {
     .then(res => res.json())
     .then(data => {
         if (data.ok && data.team) {
+            usedColors = data.team.map(m => m.color);
             const existingMember = data.team.find(m => m.email === e);
             if (existingMember && !color) {
-                const colorIndex = COLORS.indexOf(existingMember.color);
-                if (colorIndex >= 0) {
-                    selectColor(colorIndex);
-                }
+                color = existingMember.color;
+                document.querySelectorAll('.color-btn').forEach((b, i) => {
+                    if (COLORS[i] === color) {
+                        b.classList.add('selected');
+                    } else {
+                        b.classList.remove('selected');
+                    }
+                });
             }
+            rebuildColorPicker();
         }
 
         if (!color) {
