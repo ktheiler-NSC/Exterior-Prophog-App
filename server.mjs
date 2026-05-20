@@ -152,6 +152,51 @@ app.get('/api/tracker/:sheetId', (req, res) => {
   res.json({ ok: true, data });
 });
 
+// Add or update team member
+app.post('/api/team-member/add', (req, res) => {
+  try {
+    const { sheetId, email, color, name } = req.body;
+
+    if (!sheetId || !email || !color || !name) {
+      return res.status(400).json({ ok: false, error: 'Missing required fields' });
+    }
+
+    if (!trackerData[sheetId]) {
+      trackerData[sheetId] = {};
+    }
+
+    if (!trackerData[sheetId]['_team']) {
+      trackerData[sheetId]['_team'] = [];
+    }
+
+    const team = trackerData[sheetId]['_team'];
+
+    // Check if user already exists
+    const existingIndex = team.findIndex(t => t.email === email);
+    if (existingIndex >= 0) {
+      team[existingIndex] = { email, color, name };
+    } else {
+      // Check 5-person limit
+      if (team.length >= 5) {
+        return res.status(400).json({ ok: false, error: 'Team capacity (5 members) reached' });
+      }
+      team.push({ email, color, name });
+    }
+
+    saveTrackerData();
+    res.json({ ok: true, team });
+  } catch (error) {
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+// Get team members for a sheet
+app.get('/api/team/:sheetId', (req, res) => {
+  const { sheetId } = req.params;
+  const team = trackerData[sheetId]?.['_team'] || [];
+  res.json({ ok: true, team });
+});
+
 // Bulk save all tracker data
 app.post('/api/tracker/bulk-save', (req, res) => {
   try {

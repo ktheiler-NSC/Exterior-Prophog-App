@@ -324,6 +324,7 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>Assigned To</th>
                             <th>First Name</th>
                             <th>Last Name</th>
                             <th>Phone</th>
@@ -350,16 +351,30 @@
 </div>
 
 <div id="settings-modal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
         <button class="modal-close" onclick="closeSettings()">×</button>
-        <div class="modal-header">Daily Goal Settings</div>
+        <div class="modal-header">Settings</div>
+
         <div class="modal-field">
-            <label class="modal-label">Your Daily Target (agents to contact)</label>
+            <label class="modal-label">📊 Daily Target (agents to contact)</label>
             <input type="number" id="goal-input" class="modal-input" min="1" max="999" value="20">
+            <div style="font-size: 10px; color: #6b7280; margin-top: 6px;">Set your personal daily goal for agent contacts.</div>
         </div>
-        <div style="font-size: 10px; color: #6b7280; margin-bottom: 15px;">Set your personal daily goal for agent contacts. Your progress will be tracked toward this number.</div>
+
+        <div style="border-top: 1px solid #2a2d35; margin: 20px 0;"></div>
+
+        <div class="modal-field">
+            <label class="modal-label">☎️ Google Voice for Desktop Calls</label>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <input type="checkbox" id="google-voice-toggle" onchange="toggleGoogleVoice()">
+                <span style="font-size: 11px; color: #6b7280;">Use Google Voice to make calls from desktop</span>
+            </div>
+            <input type="text" id="google-voice-number" class="modal-input" placeholder="Your Google Voice phone number (e.g., +1-555-123-4567)" style="display: none; margin-bottom: 10px;">
+            <div style="font-size: 10px; color: #6b7280; margin-top: 6px;">When enabled, clicking phone numbers on desktop will open Google Voice with the number ready to call. Mobile devices will still use their native dialer.</div>
+        </div>
+
         <div class="modal-buttons">
-            <button class="modal-btn modal-btn-save" onclick="saveGoal()">Save Goal</button>
+            <button class="modal-btn modal-btn-save" onclick="saveSettings()">Save Settings</button>
             <button class="modal-btn modal-btn-cancel" onclick="closeSettings()">Cancel</button>
         </div>
     </div>
@@ -533,6 +548,28 @@ function login() {
             tracker = data.data;
         }
 
+        const userName = e.split('@')[0];
+        return fetch('/api/team-member/add', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetId: finalId, email: e, color: color, name: userName })
+        });
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.ok) throw new Error(data.error);
+
+        return fetch(`/api/team/${sheetId}`);
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.ok && data.team) {
+            users = {};
+            data.team.forEach(member => {
+                users[member.email] = { color: member.color, name: member.name, dailyGoal: parseInt(localStorage.getItem(`goal-${member.email}`)) || 20 };
+            });
+        }
+
         document.getElementById('login').style.display = 'none';
         document.getElementById('app').classList.add('active');
 
@@ -644,6 +681,8 @@ function render() {
     }
 
     let html = '';
+    const useGoogleVoice = localStorage.getItem(`gv-enabled-${email}`) === 'true';
+
     filtered.forEach(a => {
         const npn = a.npn_no || a.npn;
         const isContacted = tracker[npn]?.assignment || (tracker[npn]?.notes && tracker[npn].notes.length > 0);
@@ -653,10 +692,25 @@ function render() {
         const residentValue = a.is_residence ? 'Yes' : 'No';
         const residentClass = a.is_residence ? 'contacted-yes' : 'contacted-no';
 
+        const assignedTo = tracker[npn]?.assigned_to;
+        const assignedUser = assignedTo ? users[assignedTo] : null;
+        const assignedHtml = assignedUser ? `<span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: ${assignedUser.color}; color: white; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-right: 4px;" title="${assignedUser.name}">${assignedUser.name.substring(0, 1).toUpperCase()}</span>` : '-';
+
+        const phoneNumber = a.phone || '';
+        let phoneLink = '';
+        if (phoneNumber) {
+            if (useGoogleVoice) {
+                phoneLink = `<a href="https://voice.google.com/u/0/" target="_blank" class="phone-link" onclick="event.stopPropagation(); window.open('https://voice.google.com/u/0/', '_blank'); return false;" title="Open Google Voice to call ${phoneNumber}">${phoneNumber}</a>`;
+            } else {
+                phoneLink = `<a href="tel:${phoneNumber}" class="phone-link">${phoneNumber}</a>`;
+            }
+        }
+
         html += '<tr onclick="open_drawer(\'' + npn + '\')">';
+        html += '<td>' + assignedHtml + '</td>';
         html += '<td>' + (a.first_name || '') + '</td>';
         html += '<td>' + (a.last_name || '') + '</td>';
-        html += '<td><a href="tel:' + (a.phone || '') + '" class="phone-link">' + (a.phone || '') + '</a></td>';
+        html += '<td>' + phoneLink + '</td>';
         html += '<td>' + (a.city || '') + '</td>';
         html += '<td>' + (a.county || '') + '</td>';
         html += '<td>' + (a.license_type || '') + '</td>';
@@ -732,11 +786,23 @@ function close_drawer() {
     tracker[npn].assignment = document.getElementById('assignment').value;
     tracker[npn].calendly = document.getElementById('calendly-link').value;
 
+    if (tracker[npn].assignment && tracker[npn].assignment !== '') {
+        tracker[npn].assigned_to = email;
+    }
+
     fetch('/api/save-tracker', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sheetId, npn, field: 'calendly', value: tracker[npn].calendly })
     }).catch(err => console.error('Save error:', err));
+
+    if (tracker[npn].assigned_to) {
+        fetch('/api/save-tracker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetId, npn, field: 'assigned_to', value: tracker[npn].assigned_to })
+        }).catch(err => console.error('Save error:', err));
+    }
 
     document.getElementById('drawer').classList.remove('open');
 }
@@ -745,6 +811,10 @@ function save() {
     const npn = current.npn_no || current.npn;
     tracker[npn] = tracker[npn] || {};
     tracker[npn].assignment = document.getElementById('assignment').value;
+
+    if (tracker[npn].assignment && tracker[npn].assignment !== '') {
+        tracker[npn].assigned_to = email;
+    }
 
     if (tracker[npn].assignment === 'Do Not Call') {
         tracker[npn].dnc = true;
@@ -763,6 +833,14 @@ function save() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sheetId, npn, field: 'dnc', value: tracker[npn].dnc })
     }).catch(err => console.error('Save error:', err));
+
+    if (tracker[npn].assigned_to) {
+        fetch('/api/save-tracker', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sheetId, npn, field: 'assigned_to', value: tracker[npn].assigned_to })
+        }).catch(err => console.error('Save error:', err));
+    }
 
     render();
     updateStats();
@@ -881,6 +959,14 @@ function exportCSV() {
 function openSettings() {
     const userGoal = users[email]?.dailyGoal || 20;
     document.getElementById('goal-input').value = userGoal;
+
+    const useGoogleVoice = localStorage.getItem(`gv-enabled-${email}`) === 'true';
+    const googleVoiceNumber = localStorage.getItem(`gv-number-${email}`) || '';
+
+    document.getElementById('google-voice-toggle').checked = useGoogleVoice;
+    document.getElementById('google-voice-number').value = googleVoiceNumber;
+    document.getElementById('google-voice-number').style.display = useGoogleVoice ? 'block' : 'none';
+
     document.getElementById('settings-modal').classList.add('active');
 }
 
@@ -888,14 +974,29 @@ function closeSettings() {
     document.getElementById('settings-modal').classList.remove('active');
 }
 
-function saveGoal() {
+function toggleGoogleVoice() {
+    const isChecked = document.getElementById('google-voice-toggle').checked;
+    document.getElementById('google-voice-number').style.display = isChecked ? 'block' : 'none';
+}
+
+function saveSettings() {
     const goalValue = parseInt(document.getElementById('goal-input').value);
     if (isNaN(goalValue) || goalValue < 1) {
         alert('Please enter a valid number (minimum 1)');
         return;
     }
+
     users[email].dailyGoal = goalValue;
     localStorage.setItem(`goal-${email}`, goalValue);
+
+    const useGoogleVoice = document.getElementById('google-voice-toggle').checked;
+    const googleVoiceNumber = document.getElementById('google-voice-number').value.trim();
+
+    localStorage.setItem(`gv-enabled-${email}`, useGoogleVoice);
+    if (googleVoiceNumber) {
+        localStorage.setItem(`gv-number-${email}`, googleVoiceNumber);
+    }
+
     render();
     closeSettings();
 }
