@@ -684,8 +684,6 @@ function login() {
             if (existingMember && !color) {
                 color = existingMember.color;
                 console.log('Setting color from team:', color);
-                localStorage.setItem(`remembered-color-${e}`, color);
-                console.log('Saved to localStorage:', `remembered-color-${e}`, '=', color);
                 document.querySelectorAll('.color-btn').forEach((b, i) => {
                     if (COLORS[i] === color) {
                         b.classList.add('selected');
@@ -693,6 +691,10 @@ function login() {
                         b.classList.remove('selected');
                     }
                 });
+            }
+            if (color) {
+                localStorage.setItem(`remembered-color-${e}`, color);
+                console.log('Saved to localStorage:', `remembered-color-${e}`, '=', color);
             }
             rebuildColorPicker();
         }
