@@ -760,7 +760,7 @@ function build() {
     buildFilterOptions('county', 'county');
     buildFilterOptions('city', 'city');
     buildFilterOptions('gender', 'gender');
-    buildFilterOptions('resident', 'is_residence');
+    buildFilterOptions('resident', 'state');
     buildFilterOptions('license-state', 'license_state');
 }
 
@@ -777,7 +777,7 @@ function filter() {
     const county = getSelectedFilters('county', 'county');
     const city = getSelectedFilters('city', 'city');
     const gender = getSelectedFilters('gender', 'gender');
-    const resident = getSelectedFilters('resident', 'is_residence');
+    const resident = getSelectedFilters('resident', 'state');
     const licenseState = getSelectedFilters('license-state', 'license_state');
 
     filtered = agents.filter(a => {
@@ -789,7 +789,7 @@ function filter() {
         const c = !county || county.includes(a.county);
         const ci = !city || city.includes(a.city);
         const g = !gender || gender.includes(a.gender);
-        const r = !resident || resident.includes(String(a.is_residence));
+        const r = !resident || resident.includes(String(a.state));
         const ls2 = !licenseState || licenseState.includes(a.license_state);
         return s && asgn && lt && lo && c && ci && g && r && ls2;
     });
