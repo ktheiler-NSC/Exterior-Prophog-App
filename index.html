@@ -680,9 +680,12 @@ function login() {
         if (data.ok && data.team) {
             usedColors = data.team.map(m => m.color);
             const existingMember = data.team.find(m => m.email === e);
+            console.log('Team data loaded. Existing member:', existingMember, 'Current color:', color);
             if (existingMember && !color) {
                 color = existingMember.color;
+                console.log('Setting color from team:', color);
                 localStorage.setItem(`remembered-color-${e}`, color);
+                console.log('Saved to localStorage:', `remembered-color-${e}`, '=', color);
                 document.querySelectorAll('.color-btn').forEach((b, i) => {
                     if (COLORS[i] === color) {
                         b.classList.add('selected');
