@@ -682,6 +682,7 @@ function login() {
             const existingMember = data.team.find(m => m.email === e);
             if (existingMember && !color) {
                 color = existingMember.color;
+                localStorage.setItem(`remembered-color-${e}`, color);
                 document.querySelectorAll('.color-btn').forEach((b, i) => {
                     if (COLORS[i] === color) {
                         b.classList.add('selected');
