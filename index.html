@@ -556,7 +556,7 @@ function rebuildColorPicker() {
     container.innerHTML = allColors.map((c, i) => {
         const isTaken = usedColors.includes(c) && c !== color;
         const isSelected = color === c;
-        return `<button type="button" class="color-btn ${isSelected ? 'selected' : ''} ${isTaken ? 'taken' : ''}" style="background: ${c}; opacity: ${isTaken ? 0.5 : 1}; cursor: ${isTaken ? 'not-allowed' : 'pointer'};" onclick="${isTaken ? 'alert(\'This color is already in use by another team member\'); return false;' : `selectColor('${c}')`}" title="${isTaken ? 'Taken by ' + usedColors.indexOf(c) : ''}"></button>`;
+        return `<button type="button" class="color-btn ${isSelected ? 'selected' : ''} ${isTaken ? 'taken' : ''}" data-color="${c}" style="background: ${c}; opacity: ${isTaken ? 0.5 : 1}; cursor: ${isTaken ? 'not-allowed' : 'pointer'};" onclick="${isTaken ? 'alert(\'This color is already in use by another team member\'); return false;' : `selectColor('${c}')`}" title="${isTaken ? 'Taken by ' + usedColors.indexOf(c) : ''}"></button>`;
     }).join('');
 }
 
@@ -567,7 +567,7 @@ function selectColor(colorValue) {
         color = colorValue;
     }
     document.querySelectorAll('.color-btn').forEach(b => {
-        if (b.style.background === color) {
+        if (b.getAttribute('data-color') === color) {
             b.classList.add('selected');
         } else {
             b.classList.remove('selected');
