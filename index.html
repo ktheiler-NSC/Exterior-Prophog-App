@@ -534,11 +534,16 @@ function isValidEmail(email) {
 
 function rebuildColorPicker() {
     const available = getAvailableColors();
-    const allColors = available.length > 0 ? available : getOrGenerateColor();
+    let allColors = available.length > 0 ? available : getOrGenerateColor();
+
+    if (color && !allColors.includes(color)) {
+        allColors = [color, ...allColors];
+    }
+
     const container = document.getElementById('colors');
 
     container.innerHTML = allColors.map((c, i) => {
-        const isTaken = usedColors.includes(c);
+        const isTaken = usedColors.includes(c) && c !== color;
         const isSelected = color === c;
         return `<button type="button" class="color-btn ${isSelected ? 'selected' : ''} ${isTaken ? 'taken' : ''}" style="background: ${c}; opacity: ${isTaken ? 0.5 : 1}; cursor: ${isTaken ? 'not-allowed' : 'pointer'};" onclick="${isTaken ? 'alert(\'This color is already in use by another team member\'); return false;' : `selectColor('${c}')`}" title="${isTaken ? 'Taken by ' + usedColors.indexOf(c) : ''}"></button>`;
     }).join('');
