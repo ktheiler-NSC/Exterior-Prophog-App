@@ -18,6 +18,8 @@
         .form-label { display: block; font-size: 11px; color: #6b7280; margin-bottom: 8px; text-transform: uppercase; font-weight: 600; }
         .form-input { width: 100%; padding: 12px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 6px; color: #e8eaf0; font-size: 14px; }
         .form-input:focus { border-color: #4ade80; outline: none; }
+        .form-input:-webkit-autofill { -webkit-box-shadow: 0 0 0 1000px #1e2026 inset; -webkit-text-fill-color: #e8eaf0; }
+        .form-input:-webkit-autofill:focus { -webkit-box-shadow: 0 0 0 1000px #1e2026 inset, 0 0 0 2px #4ade80; }
         .color-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 10px; margin-top: 10px; }
         .color-btn { width: 100%; aspect-ratio: 1; border: 3px solid #2a2d35; border-radius: 8px; cursor: pointer; transition: all 0.2s; position: relative; }
         .color-btn:hover:not(.taken) { transform: scale(1.1); }
@@ -562,6 +564,9 @@ function selectColor(colorValue) {
             b.classList.remove('selected');
         }
     });
+    if (email) {
+        localStorage.setItem(`remembered-color-${email}`, color);
+    }
     checkFormFields();
 }
 
@@ -569,6 +574,11 @@ function loadSavedEmail() {
     const savedEmail = localStorage.getItem('remembered-email');
     if (savedEmail) {
         document.getElementById('email').value = savedEmail;
+        const savedColor = localStorage.getItem(`remembered-color-${savedEmail}`);
+        if (savedColor) {
+            color = savedColor;
+            rebuildColorPicker();
+        }
         checkFormFields();
     }
 }
