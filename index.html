@@ -172,6 +172,70 @@
         .dashboard-cell { background: #16181c; padding: 8px 4px; text-align: center; font-size: 11px; border: 1px solid #2a2d35; min-width: 50px; }
         .dashboard-cell.hit { background: #16a34a; color: white; font-weight: 600; }
         .dashboard-cell.missed { background: #6b7280; color: white; font-weight: 600; }
+
+        /* Hamburger menu button */
+        .hamburger-menu { display: none; background: none; border: none; color: #6b7280; cursor: pointer; font-size: 20px; padding: 0; margin: 0 10px; }
+        .hamburger-menu:hover { color: #4ade80; }
+
+        /* Filters panel overlay */
+        .filters-panel { position: static; }
+
+        /* Mobile: < 768px */
+        @media (max-width: 767px) {
+            body { padding: 0; }
+            .login-box { border-radius: 0; max-width: 100%; padding: 20px; }
+
+            /* Hamburger menu visible on mobile */
+            .hamburger-menu { display: block; }
+
+            /* Hide desktop tabs */
+            #tab-agents, #tab-dashboard { display: none; }
+
+            /* Header compact */
+            header { padding: 10px 15px; gap: 10px; }
+            .logo { font-size: 14px; }
+
+            /* Main layout: single column */
+            .main { grid-template-columns: 1fr; }
+
+            /* Filters panel as overlay on mobile */
+            .filters-panel { position: fixed; top: 0; left: -100vw; width: 100vw; height: 100vh; background: #0e0f11; border-right: 1px solid #2a2d35; transition: left 0.3s ease; z-index: 50; overflow-y: auto; padding: 20px; }
+            .filters-panel.open { left: 0; }
+
+            /* Drawer full screen on mobile */
+            .drawer { width: 100vw !important; right: -100vw !important; }
+
+            /* Hide team dashboard on mobile */
+            .team-dashboard { display: none !important; }
+
+            /* Hide team bar on mobile */
+            .team-bar { display: none; }
+
+            /* Compact stats panel */
+            .stats-panel { font-size: 12px; gap: 10px; }
+
+            /* Responsive table */
+            table { font-size: 11px; }
+            th, td { padding: 6px 4px; }
+
+            /* Reduce header padding */
+            header { flex-wrap: wrap; }
+        }
+
+        /* Tablet: 768px - 1024px */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .main { grid-template-columns: 150px 1fr; }
+            aside { padding: 10px; }
+            .drawer { width: 400px !important; }
+            .hamburger-menu { display: none; }
+        }
+
+        /* Desktop: > 1024px */
+        @media (min-width: 1025px) {
+            .hamburger-menu { display: none; }
+            .filters-panel { position: static; left: auto; width: auto; height: auto; background: transparent; border: none; padding: 12px; }
+            .filters-panel.open { left: auto; }
+        }
     </style>
 </head>
 <body>
@@ -226,6 +290,7 @@
 <div id="app" class="app-screen">
     <header>
         <div class="logo">🟢 Exterior PropHog</div>
+        <button class="hamburger-menu" id="hamburger-menu" onclick="toggleFiltersPanel()" title="Toggle Filters">☰</button>
         <div style="display: flex; gap: 10px;">
             <button class="tab-btn active" id="tab-agents" onclick="showAgentTable()">📊 Agents</button>
             <button class="tab-btn" id="tab-dashboard" onclick="showTeamDashboard()">📈 Team Goals</button>
@@ -266,7 +331,11 @@
     </div>
 
     <div class="main">
-        <aside>
+        <div id="filters-panel" class="filters-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #4ade80; font-size: 14px;">Filters</h3>
+                <button onclick="toggleFiltersPanel()" style="background: none; border: none; color: #6b7280; cursor: pointer; font-size: 20px; padding: 0;">✕</button>
+            </div>
             <input type="text" class="search-box" id="search" placeholder="Name, city, email, county" onkeyup="filter()">
 
             <div class="filter-section">
@@ -346,9 +415,9 @@
                 <div class="filter-options" id="filter-license-state"></div>
             </div>
 
-            <button class="clear-btn" onclick="clearAll()">Clear all filters</button>
+            <button class="clear-btn" onclick="resetFilters()">Reset Filters</button>
             <button class="export-btn" onclick="exportCSV()">📥 Export filtered list (CSV)</button>
-        </aside>
+        </div>
 
         <div class="table-container">
             <div style="padding: 12px 15px; background: #1e2026; border-bottom: 1px solid #2a2d35; font-size: 11px; color: #6b7280; display: flex; justify-content: space-between; align-items: center;">
@@ -589,6 +658,91 @@ function loadSavedEmail() {
             rebuildColorPicker();
         }
         checkFormFields();
+        email = savedEmail;
+        loadFilterState();
+    }
+}
+
+function toggleFiltersPanel() {
+    const panel = document.getElementById('filters-panel');
+    panel.classList.toggle('open');
+    if (window.innerWidth < 768) {
+        close_drawer();
+    }
+}
+
+function saveFilterState() {
+    if (!email) return;
+
+    const filterState = {
+        search: document.querySelector('.search-box')?.value || '',
+        filters: {}
+    };
+
+    document.querySelectorAll('.filter-option input:checked').forEach(input => {
+        const filterSection = input.closest('.filter-section');
+        const filterTitle = filterSection?.querySelector('.filter-title');
+        const filterLabel = filterTitle?.querySelector('.filter-label')?.textContent || '';
+
+        if (!filterState.filters[filterLabel]) filterState.filters[filterLabel] = [];
+        filterState.filters[filterLabel].push(input.value);
+    });
+
+    const sortSelect = document.getElementById('license-count-sort');
+    if (sortSelect) {
+        filterState['license-count'] = sortSelect.value;
+    }
+
+    localStorage.setItem(`filters-${email}`, JSON.stringify(filterState));
+    console.log('Filter state saved:', filterState);
+}
+
+function loadFilterState() {
+    if (!email) return;
+
+    const saved = localStorage.getItem(`filters-${email}`);
+    if (!saved) return;
+
+    const filterState = JSON.parse(saved);
+    console.log('Filter state loaded:', filterState);
+
+    const searchBox = document.querySelector('.search-box');
+    if (searchBox && filterState.search) {
+        searchBox.value = filterState.search;
+    }
+
+    document.querySelectorAll('.filter-option input').forEach(input => {
+        const filterSection = input.closest('.filter-section');
+        const filterTitle = filterSection?.querySelector('.filter-title');
+        const filterLabel = filterTitle?.querySelector('.filter-label')?.textContent || '';
+
+        for (const [labelKey, values] of Object.entries(filterState.filters)) {
+            if (filterLabel === labelKey) {
+                input.checked = values.includes(input.value);
+            }
+        }
+    });
+
+    if (filterState['license-count']) {
+        const sortSelect = document.getElementById('license-count-sort');
+        if (sortSelect) sortSelect.value = filterState['license-count'];
+    }
+}
+
+function resetFilters() {
+    document.querySelectorAll('.filter-option input').forEach(input => input.checked = false);
+
+    const searchBox = document.querySelector('.search-box');
+    if (searchBox) searchBox.value = '';
+
+    const sortSelect = document.getElementById('license-count-sort');
+    if (sortSelect) sortSelect.value = '';
+
+    filter();
+    saveFilterState();
+
+    if (window.innerWidth < 768) {
+        document.getElementById('filters-panel').classList.remove('open');
     }
 }
 
@@ -750,9 +904,17 @@ function login() {
 
         updateTeamBar();
         build();
-        render();
+        loadFilterState();
+        filter();
         updateStats();
         renderTeamDashboard();
+
+        // Restore last viewed agent
+        const lastAgent = localStorage.getItem(`last-agent-${e}`);
+        if (lastAgent && filtered.some(a => (a.npn_no || a.npn) === lastAgent)) {
+            console.log('Opening last viewed agent:', lastAgent);
+            open_drawer(lastAgent);
+        }
     })
     .catch(err => {
         msg.textContent = 'Error: ' + err.message;
@@ -837,6 +999,7 @@ function applySort() {
     }
 
     render();
+    saveFilterState();
 }
 
 function toggleFilter(element) {
@@ -947,6 +1110,8 @@ function updateStats() {
 function open_drawer(npn) {
     current = agents.find(a => (a.npn_no || a.npn) === npn);
     if (!current) return;
+
+    localStorage.setItem(`last-agent-${email}`, npn);
 
     const firstName = current.first_name || '';
     const lastName = current.last_name || '';
