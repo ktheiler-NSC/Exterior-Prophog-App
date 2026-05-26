@@ -233,7 +233,7 @@
         /* Desktop: > 1024px */
         @media (min-width: 1025px) {
             .hamburger-menu { display: none; }
-            .filters-panel { position: static; left: auto; width: auto; height: auto; background: transparent; border: none; padding: 12px; }
+            .filters-panel { position: static; left: auto; width: auto; height: auto; background: transparent; border: none; padding: 12px; overflow-y: auto; max-height: calc(100vh - 220px); }
             .filters-panel.open { left: auto; }
         }
     </style>
