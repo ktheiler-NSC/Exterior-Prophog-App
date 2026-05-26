@@ -251,6 +251,7 @@
         /* Desktop: > 1024px */
         @media (min-width: 1025px) {
             .hamburger-menu { display: none; }
+            .filters-close-btn { display: none; }
             .filters-panel { position: static; left: auto; width: auto; height: auto; background: transparent; border: none; padding: 12px; overflow-y: auto; max-height: calc(100vh - 220px); }
             .filters-panel.open { left: auto; }
         }
@@ -352,7 +353,7 @@
         <div id="filters-panel" class="filters-panel">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin: 0; color: #4ade80; font-size: 14px;">Filters</h3>
-                <button onclick="toggleFiltersPanel()" style="background: none; border: none; color: #6b7280; cursor: pointer; font-size: 20px; padding: 0;">✕</button>
+                <button class="filters-close-btn" onclick="toggleFiltersPanel()" style="background: none; border: none; color: #6b7280; cursor: pointer; font-size: 20px; padding: 0;">✕</button>
             </div>
             <input type="text" class="search-box" id="search" placeholder="Name, city, email, county" onkeyup="filter()">
 
