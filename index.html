@@ -192,14 +192,21 @@
             #tab-agents, #tab-dashboard { display: none; }
 
             /* Header compact */
-            header { padding: 10px 15px; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
-            .logo { font-size: 14px; flex: 0 0 auto; }
-            .hamburger-menu { flex: 0 0 auto; }
-            .user-info { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
-            .user-badge { width: 28px; height: 28px; font-size: 10px; }
-            #user-email { font-size: 10px; }
-            .settings-btn { padding: 4px 8px; font-size: 10px; }
-            .logout-btn { padding: 4px 8px; font-size: 10px; }
+            header { padding: 8px 12px; gap: 5px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+            .logo { font-size: 13px; flex: 1; }
+            .hamburger-menu { padding: 6px; font-size: 18px; margin-left: auto; }
+
+            /* Hide user badge and email on mobile */
+            .user-badge, #user-email { display: none; }
+
+            /* Mobile user info: compact right side buttons */
+            .user-info { display: flex; gap: 4px; align-items: center; order: 3; }
+
+            /* Settings button: show only icon on mobile */
+            .settings-btn { padding: 6px; font-size: 14px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; border-radius: 4px; white-space: nowrap; overflow: hidden; max-width: 32px; }
+
+            /* Logout button: compact on mobile */
+            .logout-btn { padding: 6px 8px; font-size: 10px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; border-radius: 4px; white-space: nowrap; }
 
             /* Main layout: single column */
             .main { grid-template-columns: 1fr; }
