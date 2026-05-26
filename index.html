@@ -1099,7 +1099,7 @@ function render() {
         html += '<td><span class="' + residentClass + '">' + residentValue + '</span></td>';
         html += '<td>' + (a.license_count || '') + '</td>';
         html += '<td>' + (a.license_effective_date || '') + '</td>';
-        html += '<td>' + (a.active_lic_time || '') + '</td>';
+        html += '<td>' + (a['Active Lic time'] || a.active_lic_time || '') + '</td>';
         html += '<td><span class="' + (isContacted ? 'contacted-yes' : 'contacted-no') + '">' + (isContacted ? '✓ Yes' : '✗ No') + '</span></td>';
         html += '<td>' + (npn || '') + '</td>';
         html += '</tr>';
