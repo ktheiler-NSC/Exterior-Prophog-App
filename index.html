@@ -426,6 +426,19 @@
             </div>
 
             <div class="filter-section">
+                <div class="filter-title">
+                    <span class="filter-label"><span class="filter-icon">⏱️</span> License experience</span>
+                </div>
+                <div style="padding: 10px 15px;">
+                    <select id="active-lic-time-sort" class="drawer-select" style="width: 100%; padding: 8px; background: #1e2026; border: 1px solid #2a2d35; border-radius: 4px; color: #e8eaf0; font-size: 12px; margin-bottom: 0;" onchange="applySort()">
+                        <option value="">No sort</option>
+                        <option value="asc">Least experience first</option>
+                        <option value="desc">Most experience first</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-section">
                 <div class="filter-title" onclick="toggleFilter(this)">
                     <span class="filter-label"><span class="filter-icon">📜</span> License state</span>
                     <span class="filter-toggle">▼</span>
@@ -1021,13 +1034,29 @@ function filter() {
     applySort();
 }
 
-function applySort() {
-    const sortOrder = document.getElementById('license-count-sort')?.value || '';
+function parseLicenseExperience(text) {
+    if (!text) return 0;
+    const dayMatch = text.match(/(\d+)\s+days?/);
+    const monthMatch = text.match(/(\d+)\s+months?/);
+    const days = dayMatch ? parseInt(dayMatch[1]) : 0;
+    const months = monthMatch ? parseInt(monthMatch[1]) : 0;
+    return days + (months * 30);
+}
 
-    if (sortOrder === 'desc') {
+function applySort() {
+    const licCountSort = document.getElementById('license-count-sort')?.value || '';
+    const licTimeSort = document.getElementById('active-lic-time-sort')?.value || '';
+
+    if (licCountSort === 'desc') {
         filtered.sort((a, b) => parseInt(b.license_count || 0) - parseInt(a.license_count || 0));
-    } else if (sortOrder === 'asc') {
+    } else if (licCountSort === 'asc') {
         filtered.sort((a, b) => parseInt(a.license_count || 0) - parseInt(b.license_count || 0));
+    }
+
+    if (licTimeSort === 'asc') {
+        filtered.sort((a, b) => parseLicenseExperience(a['Active Lic time'] || a.active_lic_time || '') - parseLicenseExperience(b['Active Lic time'] || b.active_lic_time || ''));
+    } else if (licTimeSort === 'desc') {
+        filtered.sort((a, b) => parseLicenseExperience(b['Active Lic time'] || b.active_lic_time || '') - parseLicenseExperience(a['Active Lic time'] || a.active_lic_time || ''));
     }
 
     render();
