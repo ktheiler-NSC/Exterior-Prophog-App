@@ -952,7 +952,16 @@ function updateTeamBar() {
 
 function buildFilterOptions(fieldId, fieldName) {
     if (fieldId === 'license-count') return;
-    const values = [...new Set(agents.map(a => a[fieldName]).filter(Boolean))].sort();
+
+    let values;
+
+    // Hard-coded values for assignment/caller status
+    if (fieldId === 'assignment') {
+        values = ['Called / Made Contact', 'No Answer', 'DM Messenger/Telegram/Chat', 'Sent Text Message', 'Completed Interview', 'AOA Started', 'Follow up timeline/notes', 'Do Not Call'];
+    } else {
+        values = [...new Set(agents.map(a => a[fieldName]).filter(Boolean))].sort();
+    }
+
     const container = document.getElementById(`filter-${fieldId}`);
     if (!container) return;
     container.innerHTML = values.map((v, i) => `
