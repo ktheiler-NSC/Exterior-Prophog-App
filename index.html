@@ -255,6 +255,72 @@
             .filters-panel { position: static; left: auto; width: auto; height: auto; background: transparent; border: none; padding: 12px; overflow-y: auto; max-height: calc(100vh - 220px); }
             .filters-panel.open { left: auto; }
         }
+
+        /* LIGHT THEME */
+        body.light-mode { background: #f9fafb; color: #1f2937; }
+        .light-mode .login-screen { background: linear-gradient(135deg, #e5e7eb 0%, #f3f4f6 100%); }
+        .light-mode .login-box { background: #ffffff; border: 1px solid #d1d5db; }
+        .light-mode .login-header h1 { color: #16a34a; }
+        .light-mode .login-header p { color: #6b7280; }
+        .light-mode .form-label { color: #6b7280; }
+        .light-mode .form-input { background: #f3f4f6; border: 1px solid #d1d5db; color: #1f2937; }
+        .light-mode .form-input:focus { border-color: #16a34a; }
+        .light-mode .form-btn { background: #16a34a; color: #ffffff; }
+        .light-mode .app-screen { background: #f9fafb; }
+        .light-mode header { background: #ffffff; border: 1px solid #e5e7eb; }
+        .light-mode .logo { color: #16a34a; }
+        .light-mode .team-bar { background: #ffffff; border: 1px solid #e5e7eb; }
+        .light-mode .team-member { background: #f3f4f6; }
+        .light-mode aside { background: #ffffff; border: 1px solid #e5e7eb; }
+        .light-mode .search-box { background: #f3f4f6; border: 1px solid #d1d5db; color: #1f2937; }
+        .light-mode .filter-section { border-bottom: 1px solid #e5e7eb; }
+        .light-mode .filter-label { color: #1f2937; }
+        .light-mode .filter-option label { color: #6b7280; }
+        .light-mode .filter-option input:checked + label { color: #16a34a; }
+        .light-mode .clear-btn { background: #f3f4f6; border: 1px solid #d1d5db; color: #6b7280; }
+        .light-mode .clear-btn:hover { border-color: #16a34a; color: #16a34a; }
+        .light-mode .export-btn { background: #16a34a; color: #ffffff; }
+        .light-mode .table-container { background: #ffffff; border: 1px solid #e5e7eb; }
+        .light-mode thead { background: #f3f4f6; }
+        .light-mode th { color: #6b7280; border-bottom: 1px solid #e5e7eb; }
+        .light-mode td { color: #1f2937; border-bottom: 1px solid #e5e7eb; }
+        .light-mode tbody tr:hover { background: #f9fafb; }
+        .light-mode .badge { background: #f3f4f6; color: #6b7280; }
+        .light-mode .drawer { background: #f9fafb; border-left: 1px solid #e5e7eb; }
+        .light-mode .drawer-header { background: #ffffff; border-bottom: 1px solid #e5e7eb; }
+        .light-mode .drawer-header h2 { color: #1f2937; }
+        .light-mode .drawer-body { background: #f9fafb; }
+        .light-mode .profile-card { background: #ffffff; border: 1px solid #e5e7eb; }
+        .light-mode .profile-label { color: #1f2937; }
+        .light-mode .profile-value { color: #1f2937; }
+        .light-mode .note-item { background: #ffffff; border: 1px solid #e5e7eb; }
+        .light-mode .modal { background: rgba(0, 0, 0, 0.1); }
+        .light-mode .modal-content { background: #ffffff; border: 1px solid #e5e7eb; }
+        .light-mode .modal-header { color: #16a34a; }
+        .light-mode .modal-label { color: #6b7280; }
+        .light-mode .modal-input { background: #f3f4f6; border: 1px solid #d1d5db; color: #1f2937; }
+        .light-mode .modal-input:focus { border-color: #16a34a; }
+        .light-mode .modal-btn-save { background: #16a34a; color: #ffffff; }
+        .light-mode .modal-btn-cancel { background: #f3f4f6; border: 1px solid #d1d5db; color: #6b7280; }
+        .light-mode .modal-btn-cancel:hover { background: #e5e7eb; }
+        .light-mode .stats-panel { background: #ffffff; border: 1px solid #e5e7eb; }
+        .light-mode .stat-item { border-bottom: 1px solid #e5e7eb; }
+        .light-mode .stat-label { color: #6b7280; }
+        .light-mode .stat-value { color: #1f2937; }
+        .light-mode .theme-btn { background: #f3f4f6 !important; color: #6b7280 !important; border: 2px solid #d1d5db !important; }
+        .light-mode .theme-btn.active { background: #f3f4f6 !important; color: #16a34a !important; border: 2px solid #16a34a !important; }
+        .light-mode .logout-btn { background: #f3f4f6; border: 1px solid #d1d5db; color: #6b7280; }
+        .light-mode .logout-btn:hover { border-color: #16a34a; color: #16a34a; }
+        .light-mode .settings-btn { background: #f3f4f6; border: 1px solid #d1d5db; color: #6b7280; }
+        .light-mode .settings-btn:hover { border-color: #16a34a; color: #16a34a; }
+        .light-mode .modal-close { color: #6b7280; }
+        .light-mode .modal-close:hover { color: #1f2937; }
+        .light-mode .drawer-close { color: #6b7280; }
+        .light-mode .drawer-close:hover { color: #1f2937; }
+        .light-mode .hamburger-menu { color: #6b7280; }
+        .light-mode .hamburger-menu:hover { color: #16a34a; }
+        .light-mode .filters-panel { background: #ffffff; border-right: 1px solid #e5e7eb; }
+        .light-mode .filter-toggle { color: #6b7280; }
     </style>
 </head>
 <body>
@@ -495,6 +561,17 @@
             <label class="modal-label">📊 Daily Target (agents to contact)</label>
             <input type="number" id="goal-input" class="modal-input" min="1" max="999" value="20">
             <div style="font-size: 10px; color: #6b7280; margin-top: 6px;">Set your personal daily goal for agent contacts.</div>
+        </div>
+
+        <div style="border-top: 1px solid #2a2d35; margin: 20px 0;"></div>
+
+        <div class="modal-field">
+            <label class="modal-label">🌙 Theme</label>
+            <div style="display: flex; gap: 10px; margin-top: 8px;">
+                <button class="theme-btn active" id="theme-dark" onclick="setTheme('dark')" style="flex: 1; padding: 10px; background: #1e2026; border: 2px solid #4ade80; border-radius: 4px; color: #4ade80; cursor: pointer; font-weight: 600; font-size: 12px;">🌙 Dark</button>
+                <button class="theme-btn" id="theme-light" onclick="setTheme('light')" style="flex: 1; padding: 10px; background: #1e2026; border: 2px solid #2a2d35; border-radius: 4px; color: #6b7280; cursor: pointer; font-weight: 600; font-size: 12px;">☀️ Light</button>
+            </div>
+            <div style="font-size: 10px; color: #6b7280; margin-top: 6px;">Choose your preferred appearance.</div>
         </div>
 
         <div style="border-top: 1px solid #2a2d35; margin: 20px 0;"></div>
@@ -937,6 +1014,7 @@ function login() {
         updateTeamBar();
         build();
         loadFilterState();
+        loadTheme();
         filter();
         updateStats();
         renderTeamDashboard();
@@ -1452,6 +1530,18 @@ function openSettings() {
     document.getElementById('google-voice-number').value = googleVoiceNumber;
     document.getElementById('google-voice-number').style.display = useGoogleVoice ? 'block' : 'none';
 
+    // Update theme button states
+    const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+    const darkBtn = document.getElementById('theme-dark');
+    const lightBtn = document.getElementById('theme-light');
+    if (currentTheme === 'light') {
+        lightBtn.classList.add('active');
+        darkBtn.classList.remove('active');
+    } else {
+        darkBtn.classList.add('active');
+        lightBtn.classList.remove('active');
+    }
+
     document.getElementById('settings-modal').classList.add('active');
 }
 
@@ -1484,6 +1574,39 @@ function saveSettings() {
 
     render();
     closeSettings();
+}
+
+function setTheme(theme) {
+    const body = document.body;
+    const darkBtn = document.getElementById('theme-dark');
+    const lightBtn = document.getElementById('theme-light');
+
+    if (theme === 'light') {
+        body.classList.add('light-mode');
+        if (darkBtn) darkBtn.classList.remove('active');
+        if (lightBtn) lightBtn.classList.add('active');
+    } else {
+        body.classList.remove('light-mode');
+        if (darkBtn) darkBtn.classList.add('active');
+        if (lightBtn) lightBtn.classList.remove('active');
+    }
+
+    // Save preference to localStorage
+    if (email) {
+        localStorage.setItem(`theme-${email}`, theme);
+    }
+    console.log('Theme set to:', theme);
+}
+
+function loadTheme() {
+    if (!email) return;
+
+    const savedTheme = localStorage.getItem(`theme-${email}`);
+    if (savedTheme === 'light') {
+        setTheme('light');
+    } else {
+        setTheme('dark');
+    }
 }
 
 function logout() {
