@@ -192,8 +192,14 @@
             #tab-agents, #tab-dashboard { display: none; }
 
             /* Header compact */
-            header { padding: 10px 15px; gap: 10px; }
-            .logo { font-size: 14px; }
+            header { padding: 10px 15px; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+            .logo { font-size: 14px; flex: 0 0 auto; }
+            .hamburger-menu { flex: 0 0 auto; }
+            .user-info { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
+            .user-badge { width: 28px; height: 28px; font-size: 10px; }
+            #user-email { font-size: 10px; }
+            .settings-btn { padding: 4px 8px; font-size: 10px; }
+            .logout-btn { padding: 4px 8px; font-size: 10px; }
 
             /* Main layout: single column */
             .main { grid-template-columns: 1fr; }
