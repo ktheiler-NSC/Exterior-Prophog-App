@@ -958,7 +958,12 @@ function buildFilterOptions(fieldId, fieldName) {
     // Hard-coded values for assignment/caller status
     if (fieldId === 'assignment') {
         values = ['Called / Made Contact', 'No Answer', 'DM Messenger/Telegram/Chat', 'Sent Text Message', 'Completed Interview', 'AOA Started', 'Follow up timeline/notes', 'Do Not Call'];
-    } else {
+    }
+    // Hard-coded all US states for resident state filter
+    else if (fieldId === 'resident') {
+        values = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'];
+    }
+    else {
         values = [...new Set(agents.map(a => a[fieldName]).filter(Boolean))].sort();
     }
 
