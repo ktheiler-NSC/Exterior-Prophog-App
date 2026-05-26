@@ -191,22 +191,25 @@
             /* Hide desktop tabs */
             #tab-agents, #tab-dashboard { display: none; }
 
-            /* Header compact */
-            header { padding: 8px 12px; gap: 5px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
-            .logo { font-size: 13px; flex: 1; }
-            .hamburger-menu { padding: 6px; font-size: 18px; margin-left: auto; }
+            /* Header compact - standard web layout */
+            header { padding: 12px 15px; gap: 10px; display: flex; align-items: center; justify-content: space-between; }
+            .logo { font-size: 14px; flex: 1; }
 
             /* Hide user badge and email on mobile */
             .user-badge, #user-email { display: none; }
 
-            /* Mobile user info: compact right side buttons */
-            .user-info { display: flex; gap: 4px; align-items: center; order: 3; }
+            /* Mobile user info: logout and hamburger on right */
+            .user-info { display: flex; gap: 8px; align-items: center; }
 
-            /* Settings button: show only icon on mobile */
-            .settings-btn { padding: 6px; font-size: 14px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; border-radius: 4px; white-space: nowrap; overflow: hidden; max-width: 32px; }
+            /* Settings button: hide on mobile */
+            .settings-btn { display: none; }
 
-            /* Logout button: compact on mobile */
-            .logout-btn { padding: 6px 8px; font-size: 10px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; border-radius: 4px; white-space: nowrap; }
+            /* Logout button styling */
+            .logout-btn { padding: 8px 12px; font-size: 11px; background: #1e2026; border: 1px solid #2a2d35; color: #6b7280; border-radius: 6px; cursor: pointer; font-weight: 500; }
+            .logout-btn:hover { border-color: #4ade80; color: #4ade80; }
+
+            /* Hamburger menu on far right */
+            .hamburger-menu { padding: 8px 10px; font-size: 18px; order: 99; }
 
             /* Main layout: single column */
             .main { grid-template-columns: 1fr; }
